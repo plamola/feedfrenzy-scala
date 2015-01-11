@@ -7,8 +7,25 @@ version := "0.1"
 scalaVersion := "2.11.4"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-stream-experimental" % "1.0-M2"
+  "com.github.tototoshi"    %% "slick-joda-mapper"        % "1.2.0",
+  "com.typesafe.akka"       %% "akka-stream-experimental" % "1.0-M2",
+  "com.typesafe.slick"      %% "slick"                    % "2.1.0",
+  "joda-time"                % "joda-time"                % "2.4",
+  "net.databinder.dispatch"  % "dispatch-core_2.11"       % "0.11.1",
+  "org.joda"                 % "joda-convert"             % "1.6",
+  "postgresql"               % "postgresql"               % "9.1-901.jdbc4"
 )
+
+scalacOptions ++= Seq(
+  "-unchecked",
+  "-deprecation",
+  "-Xlint",
+  "-Ywarn-dead-code",
+  "-language:_",
+  "-target:jvm-1.7",
+  "-encoding", "UTF-8"
+)
+
 
 scalariformSettings
 
