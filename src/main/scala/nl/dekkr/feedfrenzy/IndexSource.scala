@@ -6,6 +6,7 @@ import akka.stream.scaladsl.{ FlowGraph, Flow, Source, Sink }
 import nl.dekkr.feedfrenzy.db.{ Tables, Schema }
 import nl.dekkr.feedfrenzy.model.{ IndexPage, Scraper, Feed }
 
+import scala.util.{ Try, Failure, Success }
 import scalaj.http.Http
 import scala.slick.driver.PostgresDriver.simple._
 
@@ -33,22 +34,28 @@ object IndexSource {
     val scrapers = sourceList.map(feed => Scraper(id = feed.id, sourceUrl = feed.feedurl, singlePage = true))
     val src = Source(scrapers)
 
-    val indexPageFlow: Flow[Scraper, String] = Flow[Scraper].map(el => Http(el.sourceUrl).asString)
+    val indexPageFlow: Flow[Scraper, String] = Flow[Scraper]
+      .map(el => {
+        println(s"Flow indexPageFlow url: ${el.sourceUrl}")
+        pageContent(el.sourceUrl)
+      }
+      )
 
-    val contentSink = Sink[String]
-
-    //val loggedSource = src.map { elem => println(elem); elem }
-    //println(loggedSource)
-
-    //val mySink = Sink.foreach[Scraper](_)
-
-    //src.runWith(Sink.foreach(el => println(s"URL: ${el.sourceUrl}")))
+    val contentSink: Sink[String] = Sink.foreach[String](el => println(s"ContentSink - Content length: ${el.length}"))
 
     FlowGraph {
       implicit b =>
         import akka.stream.scaladsl.FlowGraphImplicits._
         src ~> indexPageFlow ~> contentSink
     }.run
+
+  }
+
+  def pageContent(uri: String): String = {
+    Try(Http(uri).asString) match {
+      case Success(content) => content
+      case Failure(e)       => e.getMessage
+    }
 
   }
 
