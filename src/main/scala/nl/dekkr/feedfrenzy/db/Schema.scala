@@ -18,11 +18,17 @@ object Schema {
     if (existingTables.isEmpty) {
       createAll
     } else {
-      if (!existingTables.exists(_.name.name.equalsIgnoreCase("source"))) {
-        Tables.sourceTable.ddl.create
+      if (!existingTables.exists(_.name.name.equalsIgnoreCase("scraper"))) {
+        Tables.scraperTable.ddl.create
       } else {
         // Update existing table structure
       }
+      if (!existingTables.exists(_.name.name.equalsIgnoreCase("indexpage"))) {
+        Tables.indexpageTable.ddl.create
+      } else {
+        // Update existing table structure
+      }
+
       if (!existingTables.exists(_.name.name.equalsIgnoreCase("feed"))) {
         Tables.feedTable.ddl.create
       } else {
@@ -33,13 +39,15 @@ object Schema {
       } else {
         // Update existing table structure
       }
+
     }
   }
 
   def createAll(implicit session: Session): Unit = {
-    Tables.sourceTable.ddl.create
+    Tables.scraperTable.ddl.create
     Tables.feedTable.ddl.create
     Tables.articleTable.ddl.create
+    Tables.indexpageTable.ddl.create
   }
 
   private def getConfiguredSession(conf: Config) = {

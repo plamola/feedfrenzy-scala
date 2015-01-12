@@ -6,7 +6,11 @@ import org.joda.time.DateTime
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.lifted.TableQuery
 
-case class Source(id: Option[Int] = None, sourceurl: String, updateddate: DateTime = DateTime.now(), nextupdate: Long = DateTime.now().getMillis)
+case class Scraper(id: Option[Int] = None, sourceUrl: String, singlePage: Boolean = false)
+
+case class IndexPage(id: Option[Int] = None, sourceid: Option[Int] = None, sourceurl: String, updateddate: DateTime = DateTime.now(), content: Option[String] = None)
+
+case class IndexBlock(id: Option[Int] = None, indexpageid: Option[Int] = None, sourceurl: String, updateddate: DateTime = DateTime.now(), content: Option[String] = None)
 
 case class Feed(id: Option[Int] = None, feedurl: String, link: Option[String] = None, title: Option[String] = None, description: Option[String] = None, copyright: Option[String] = None, image: Option[String] = None, publisheddate: Option[DateTime] = None, updateddate: DateTime = DateTime.now(), updateInterval: Int = 60, nextupdate: Long = DateTime.now().getMillis, lastarticlecount: Int = 0, faviconfk: Int = 0)
 
@@ -18,7 +22,7 @@ case class Article(id: Option[Int] = None, feedid: Option[Int] = None, uri: Stri
 object Syndication {
 
   implicit val session = Schema.getSession
-  val source = TableQuery[Tables.SourceTable]
+  val scrapers = TableQuery[Tables.ScraperTable]
   val feeds = TableQuery[Tables.FeedTable]
   val articles = TableQuery[Tables.ArticleTable]
 

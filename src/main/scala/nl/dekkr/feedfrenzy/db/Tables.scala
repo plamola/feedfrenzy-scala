@@ -62,18 +62,29 @@ trait Tables {
   }
   lazy val feedTable = new TableQuery(tag => new FeedTable(tag))
 
-  class SourceTable(tag: Tag) extends Table[Source](tag, "source") {
+  class ScraperTable(tag: Tag) extends Table[Scraper](tag, "scraper") {
     val id: Column[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    val url: Column[String] = column[String]("url", O.Length(1024, varying = true))
+    val singlepage: Column[Boolean] = column[Boolean]("singlepage", O.Default(false))
+
+    def * : ProvenShape[Scraper] =
+      (id.?, url, singlepage) <> (Scraper.tupled, Scraper.unapply)
+  }
+  lazy val scraperTable = new TableQuery(tag => new ScraperTable(tag))
+
+  class IndexPageTable(tag: Tag) extends Table[IndexPage](tag, "indexpage") {
+    val id: Column[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    val feedid: Column[Int] = column[Int]("sourceid")
     val sourceurl: Column[String] = column[String]("sourceurl", O.Length(1024, varying = true))
     val updateddate: Column[DateTime] = column[DateTime]("updateddate", O.Default(DateTime.now()))
-    val nextupdate: Column[Long] = column[Long]("nextupdate", O.Default(DateTime.now().getMillis))
+    val content: Column[Option[String]] = column[Option[String]]("content", O.Length(10485760, varying = true), O.Default(None))
 
-    /** Uniqueness Index over (sourceurl) (database name source_sourceurl_key) */
-    val index1 = index("source_sourceurl_key", sourceurl, unique = true)
+    def source: ForeignKeyQuery[FeedTable, Feed] =
+      foreignKey("feed_fk", feedid, TableQuery[FeedTable])(_.id)
 
-    def * : ProvenShape[Source] =
-      (id.?, sourceurl, updateddate, nextupdate) <> (Source.tupled, Source.unapply)
+    def * : ProvenShape[IndexPage] =
+      (id.?, feedid.?, sourceurl, updateddate, content) <> (IndexPage.tupled, IndexPage.unapply)
   }
-  lazy val sourceTable = new TableQuery(tag => new SourceTable(tag))
+  lazy val indexpageTable = new TableQuery(tag => new IndexPageTable(tag))
 
 }

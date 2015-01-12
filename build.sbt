@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
   "joda-time"                % "joda-time"                % "2.4",
   "net.databinder.dispatch"  % "dispatch-core_2.11"       % "0.11.1",
   "org.joda"                 % "joda-convert"             % "1.6",
+  "org.scalaj"              %% "scalaj-http"              % "0.3.16",
   "org.slf4j"                % "slf4j-nop"                % "1.6.4",
   "postgresql"               % "postgresql"               % "9.1-901.jdbc4"
 )
