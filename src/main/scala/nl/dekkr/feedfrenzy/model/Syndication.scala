@@ -8,7 +8,7 @@ import scala.slick.lifted.TableQuery
 
 case class Scraper(id: Option[Int] = None, sourceUrl: String, singlePage: Boolean = false)
 
-case class IndexPage(id: Option[Int] = None, sourceid: Option[Int] = None, sourceurl: String, updateddate: DateTime = DateTime.now(), content: Option[String] = None)
+case class IndexPage(scraper: Scraper, content: Option[String] = None)
 
 case class IndexBlock(id: Option[Int] = None, indexpageid: Option[Int] = None, sourceurl: String, updateddate: DateTime = DateTime.now(), content: Option[String] = None)
 

@@ -1,14 +1,14 @@
 package nl.dekkr.feedfrenzy
 
-import akka.actor.ActorSystem
+import akka.actor.{ ActorSystem, Props }
 import akka.stream.FlowMaterializer
-import akka.stream.scaladsl.{ FlowGraph, Flow, Source, Sink }
-import nl.dekkr.feedfrenzy.db.{ Tables, Schema }
-import nl.dekkr.feedfrenzy.model.{ IndexPage, Scraper, Feed }
+import akka.stream.actor.ActorPublisher
+import akka.stream.scaladsl.{ Flow, FlowGraph, Sink, Source }
+import nl.dekkr.feedfrenzy.model.{ IndexPage, Scraper }
+import nl.dekkr.feedfrenzy.streams.JobSourceActor
 
-import scala.util.{ Try, Failure, Success }
+import scala.util.{ Failure, Success, Try }
 import scalaj.http.Http
-import scala.slick.driver.PostgresDriver.simple._
 
 /**
  * Author: Matthijs
@@ -22,26 +22,32 @@ object IndexSource {
     implicit val system = ActorSystem("feedfrenzy-collector")
     implicit val materializer = FlowMaterializer()
 
-    val sourceList = getUpdatableFeeds
-
-    // List all available feeds
-    println("id \tupdated \t \t \turl")
-    for { c <- sourceList } println("" + c.id.get + " \t" + c.updateddate + " \t" + c.feedurl)
-
     println("####################")
     println("Show stream results:")
 
-    val scrapers = sourceList.map(feed => Scraper(id = feed.id, sourceUrl = feed.feedurl, singlePage = true))
-    val src = Source(scrapers)
+    val jobSourceActor = system.actorOf(Props[JobSourceActor])
+    val src: Source[Scraper] = Source(ActorPublisher[Scraper](jobSourceActor))
 
-    val indexPageFlow: Flow[Scraper, String] = Flow[Scraper]
+    val indexPageFlow: Flow[Scraper, IndexPage] = Flow[Scraper]
       .map(el => {
-        println(s"Flow indexPageFlow url: ${el.sourceUrl}")
-        pageContent(el.sourceUrl)
+        println(s"Flow indexPageFlow Scraper [${el.id.getOrElse(0)}] - url: ${el.sourceUrl}")
+        IndexPage(scraper = el, content = Some(pageContent(el.sourceUrl)))
       }
       )
 
-    val contentSink: Sink[String] = Sink.foreach[String](el => println(s"ContentSink - Content length: ${el.length}"))
+    //    val splitPageFlow : Flow[IndexPage, IndexPage] = Flow[IndexPage]
+    //    .map( el =>
+    //      // Make this dynamic, based on xpath / css selector
+    //      // Extract UIDs
+    //      el.content.getOrElse("").split("<div")
+    //
+    //      )
+
+    val contentSink: Sink[IndexPage] =
+      Sink.foreach[IndexPage](
+        el =>
+          println(s"Sink contentSink - Scraper [${el.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
+      )
 
     FlowGraph {
       implicit b =>
@@ -56,29 +62,6 @@ object IndexSource {
       case Success(content) => content
       case Failure(e)       => e.getMessage
     }
-
   }
 
-  def getUpdatableFeeds: List[Feed] = {
-
-    try {
-      val feeds = TableQuery[Tables.FeedTable]
-      implicit val session = Schema.getSession
-      Schema.createOrUpdate(session)
-
-      // Add some dummy feeds
-      if (feeds.list.size < 1)
-        feeds += Feed(feedurl = "http://nu.nl")
-
-      if (feeds.list.size < 2)
-        feeds += Feed(feedurl = "http://dagartikel.nl")
-
-      feeds.list
-
-    } catch {
-      case e: Exception =>
-        println(s"ERROR: ${e.getMessage} [${e.getCause}}]")
-        List.empty
-    }
-  }
 }

@@ -23,11 +23,11 @@ object Schema {
       } else {
         // Update existing table structure
       }
-      if (!existingTables.exists(_.name.name.equalsIgnoreCase("indexpage"))) {
-        Tables.indexpageTable.ddl.create
-      } else {
-        // Update existing table structure
-      }
+      //      if (!existingTables.exists(_.name.name.equalsIgnoreCase("indexpage"))) {
+      //        Tables.indexpageTable.ddl.create
+      //      } else {
+      //        // Update existing table structure
+      //      }
 
       if (!existingTables.exists(_.name.name.equalsIgnoreCase("feed"))) {
         Tables.feedTable.ddl.create
@@ -47,7 +47,7 @@ object Schema {
     Tables.scraperTable.ddl.create
     Tables.feedTable.ddl.create
     Tables.articleTable.ddl.create
-    Tables.indexpageTable.ddl.create
+    //    Tables.indexpageTable.ddl.create
   }
 
   private def getConfiguredSession(conf: Config) = {
