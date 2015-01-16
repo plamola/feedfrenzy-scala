@@ -52,10 +52,10 @@ object Schema {
 
   private def getConfiguredSession(conf: Config) = {
     Database.forURL(
-      url = conf.getString("hoppr.database.url"),
-      user = conf.getString("hoppr.database.user"),
-      password = conf.getString("hoppr.database.password"),
-      driver = conf.getString("hoppr.database.driver")).createSession()
+      url = conf.getString("feedfrenzy.database.url"),
+      user = conf.getString("feedfrenzy.database.user"),
+      password = conf.getString("feedfrenzy.database.password"),
+      driver = conf.getString("feedfrenzy.database.driver")).createSession()
   }
 
 }
