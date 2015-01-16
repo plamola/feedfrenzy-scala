@@ -9,7 +9,6 @@ import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.lifted.TableQuery
 
 case class Kick()
-case class NewJobListing()
 
 /**
  * Created by Matthijs Dekker on 13/01/15.
@@ -20,7 +19,7 @@ class JobSourceActor extends ActorPublisher[Scraper] {
 
   implicit val ec = context.dispatcher
 
-  val getNewJobs = context.system.scheduler.schedule(10 seconds, 1 minute, self, NewJobListing)
+  //val getNewJobs = context.system.scheduler.schedule(10 seconds, 1 minute, self, NewJobListing)
   val kick = context.system.scheduler.schedule(1 second, 1 second, self, Kick())
 
   var scrapers = List.empty[Scraper]
@@ -39,17 +38,17 @@ class JobSourceActor extends ActorPublisher[Scraper] {
         use foreach onNext
       }
     }
-    case NewJobListing() => {
-      //      if (scrapers.isEmpty || scrapers.length == 0) {
-      //        scrapers = getUpdatableFeeds.map(feed => Scraper(id = feed.id, sourceUrl = feed.feedurl, singlePage = true))
-      //        println(s"[${DateTime.now}] JobSourceActor got new jobs - ${scrapers.length} / $totalDemand")
-      //      }
-    }
+    //    case NewJobListing() => {
+    //      println("NewJobs")
+    //      //      if (scrapers.isEmpty || scrapers.length == 0) {
+    //      //        scrapers = getUpdatableFeeds.map(feed => Scraper(id = feed.id, sourceUrl = feed.feedurl, singlePage = true))
+    //      //        println(s"[${DateTime.now}] JobSourceActor got new jobs - ${scrapers.length} / $totalDemand")
+    //      //      }
+    //    }
   }
 
   override def postStop() = {
     kick.cancel()
-    getNewJobs.cancel()
   }
 
   def getUpdatableFeeds: List[Feed] = {

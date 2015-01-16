@@ -2,11 +2,12 @@ package nl.dekkr.feedfrenzy
 
 import akka.actor.{ ActorSystem, Props }
 import akka.stream.FlowMaterializer
-import akka.stream.actor.ActorPublisher
+import akka.stream.actor.{ ActorSubscriber, ActorPublisher }
 import akka.stream.scaladsl.{ Flow, FlowGraph, Sink, Source }
 import nl.dekkr.feedfrenzy.model.{ IndexPage, Scraper }
-import nl.dekkr.feedfrenzy.streams.JobSourceActor
+import nl.dekkr.feedfrenzy.streams.{ IndexPageSubscriber, ScraperActorPublisher, JobSourceActor }
 
+import scala.collection.mutable
 import scala.util.{ Failure, Success, Try }
 import scalaj.http.Http
 
@@ -25,7 +26,10 @@ object IndexSource {
     println("####################")
     println("Show stream results:")
 
-    val jobSourceActor = system.actorOf(Props[JobSourceActor])
+    //    val jobSourceActor = system.actorOf(Props[JobSourceActor])
+    //    val src: Source[Scraper] = Source(ActorPublisher[Scraper](jobSourceActor))
+
+    val jobSourceActor = system.actorOf(Props[ScraperActorPublisher])
     val src: Source[Scraper] = Source(ActorPublisher[Scraper](jobSourceActor))
 
     val indexPageFlow: Flow[Scraper, IndexPage] = Flow[Scraper]
@@ -49,10 +53,15 @@ object IndexSource {
           println(s"Sink contentSink - Scraper [${el.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
       )
 
+    //val subscriber: mutable.Subscriber[IndexPage] = ActorSubscriber[IndexPage](system.actorOf(Props(classOf[IndexPageSubscriber])))
+
+    val subscriber = ActorSubscriber(system.actorOf(Props[IndexPageSubscriber]))
+
     FlowGraph {
       implicit b =>
         import akka.stream.scaladsl.FlowGraphImplicits._
         src ~> indexPageFlow ~> contentSink
+      //src ~> indexPageFlow ~> subscriber
     }.run
 
   }
