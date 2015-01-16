@@ -5,7 +5,7 @@ import akka.stream.FlowMaterializer
 import akka.stream.actor.{ ActorSubscriber, ActorPublisher }
 import akka.stream.scaladsl.{ Flow, FlowGraph, Sink, Source }
 import nl.dekkr.feedfrenzy.model.{ IndexPage, Scraper }
-import nl.dekkr.feedfrenzy.streams.{ IndexPageSubscriber, ScraperActorPublisher, JobSourceActor }
+import nl.dekkr.feedfrenzy.streams.{ IndexPageSubscriber, ScraperActorPublisher }
 
 import scala.collection.mutable
 import scala.util.{ Failure, Success, Try }
@@ -25,9 +25,6 @@ object IndexSource {
 
     println("####################")
     println("Show stream results:")
-
-    //    val jobSourceActor = system.actorOf(Props[JobSourceActor])
-    //    val src: Source[Scraper] = Source(ActorPublisher[Scraper](jobSourceActor))
 
     val jobSourceActor = system.actorOf(Props[ScraperActorPublisher])
     val src: Source[Scraper] = Source(ActorPublisher[Scraper](jobSourceActor))
