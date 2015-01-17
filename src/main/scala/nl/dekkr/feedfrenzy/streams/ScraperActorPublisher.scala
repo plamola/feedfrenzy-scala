@@ -1,5 +1,7 @@
 package nl.dekkr.feedfrenzy.streams
 
+import java.util.concurrent.TimeUnit
+
 import akka.event.Logging
 import akka.stream.actor.{ ActorPublisher, ActorPublisherMessage }
 import nl.dekkr.feedfrenzy.model.{ Syndication, Scraper }
@@ -15,7 +17,13 @@ class ScraperActorPublisher extends ActorPublisher[Scraper] {
   import scala.concurrent.duration._
 
   implicit val ec = context.dispatcher
-  val getNewJobs = context.system.scheduler.schedule(1 second, 1 second, self, NewJobListing)
+  //val getNewJobs = context.system.scheduler.schedule(1 second, 1 second, self, NewJobListing)
+
+  val getNewJobs = context.system.scheduler.schedule(
+    Duration.create(0, TimeUnit.MILLISECONDS),
+    Duration.create(1, TimeUnit.MINUTES),
+    self, NewJobListing)
+
   var reloadScrapers = true
 
   val log = Logging(context.system, this)
@@ -34,7 +42,9 @@ class ScraperActorPublisher extends ActorPublisher[Scraper] {
               .map(element => onNext(element))
               .getOrElse(onComplete())
           case Failure(ex) =>
-            onError(ex)
+            //onError(ex)
+            log.info("No more jobs")
+            onComplete()
         }
       }
     case ActorPublisherMessage.Cancel =>
@@ -59,7 +69,6 @@ class ScraperActorPublisher extends ActorPublisher[Scraper] {
       createResources()
     }
     if (scrapers.size == 0) {
-      log.info("No more jobs")
       Failure(new Exception("No more jobs"))
     } else {
       val element = scrapers.head
