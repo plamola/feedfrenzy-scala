@@ -6,8 +6,7 @@ import akka.stream.actor.{ ActorSubscriber, ActorPublisher }
 import akka.stream.scaladsl._
 import nl.dekkr.feedfrenzy.model.{ IndexPage, Scraper }
 import nl.dekkr.feedfrenzy.streams.{ IndexPageSubscriber, ScraperActorPublisher }
-
-import scala.collection.mutable
+import org.reactivestreams.Subscriber
 import scala.util.{ Failure, Success, Try }
 import scalaj.http.Http
 
@@ -30,49 +29,47 @@ object IndexSource {
     val src: Source[Scraper] = Source(ActorPublisher[Scraper](jobSourceActor))
 
     val indexPageFlow: Flow[Scraper, IndexPage] = Flow[Scraper]
-      .map(el => {
-        println(s"Flow indexPageFlow Scraper [${el.id.getOrElse(0)}] - url: ${el.sourceUrl}")
-        IndexPage(scraper = el, content = Some(pageContent(el.sourceUrl)))
-      }
-      )
-
-    //    val splitPageFlow : Flow[IndexPage, IndexPage] = Flow[IndexPage]
-    //    .map( el =>
-    //      // Make this dynamic, based on xpath / css selector
-    //      // Extract UIDs
-    //      el.content.getOrElse("").split("<div")
-    //
-    //      )
-
-    val contentSink: Sink[IndexPage] =
-      Sink.foreach[IndexPage](
-        el => {
-          println(s"Sink contentSink - Scraper [${el.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
-          Thread.sleep(1000)
+      .map(
+        thisScraper => {
+          println(s"IndexPageFlow: [${thisScraper.id.getOrElse(0)}] - url: ${thisScraper.sourceUrl}")
+          IndexPage(scraper = thisScraper, content = Some(pageContent(thisScraper.sourceUrl)))
         }
       )
 
-    val loggerSink: Sink[IndexPage] =
-      Sink.foreach[IndexPage](
-        el =>
-          println(s"LoggerSink - Scraper [${el.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
-      )
+    val contentSink = ForeachSink[IndexPage] {
+      el =>
+        println(s"ContentSink: [${el.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
+        Thread.sleep(1000)
+    }
 
-    //val subscriber: mutable.Subscriber[IndexPage] = ActorSubscriber[IndexPage](system.actorOf(Props(classOf[IndexPageSubscriber])))
+    val loggerSink = ForeachSink[IndexPage] {
+      el =>
+        println(s"LoggerSink: [${el.scraper.id.getOrElse(0)}]")
+    }
 
-    val subscriber = ActorSubscriber(system.actorOf(Props[IndexPageSubscriber], "IndexPageSubscriber"))
+    val subscriber: Subscriber[IndexPage] = ActorSubscriber[IndexPage](system.actorOf(Props[IndexPageSubscriber], "IndexPageSubscriber"))
 
-    FlowGraph {
+    val sinkB: Sink[IndexPage] = Sink(subscriber)
+
+    val materialized = FlowGraph {
       implicit b =>
-        import akka.stream.scaladsl.FlowGraphImplicits._
-
+        import FlowGraphImplicits._
         val broadcast = Broadcast[IndexPage]
-
-        src ~> indexPageFlow ~> broadcast ~> contentSink
+        src ~> indexPageFlow ~> broadcast ~> sinkB
+        broadcast ~> contentSink
         broadcast ~> loggerSink
-
-      //src ~> indexPageFlow ~> subscriber
     }.run
+
+    // import system.dispatcher
+    //    materialized.get(loggerSink).onComplete {
+    //      case Success(_) =>
+    //        //Try(output.close())
+    //        system.shutdown()
+    //      case Failure(e) =>
+    //        println(s"Failure: ${e.getMessage}")
+    //        //Try(output.close())
+    //        system.shutdown()
+    //    }
 
   }
 
