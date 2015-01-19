@@ -1,8 +1,7 @@
-package nl.dekkr.feedfrenzy.streams
+package nl.dekkr.feedfrenzy.streams.sinks
 
 import akka.actor.ActorLogging
-import akka.event.Logging
-import akka.stream.actor.{ ActorSubscriberMessage, WatermarkRequestStrategy, ActorSubscriber }
+import akka.stream.actor.{ ActorSubscriber, ActorSubscriberMessage, WatermarkRequestStrategy }
 import nl.dekkr.feedfrenzy.model.IndexPage
 
 /**
@@ -22,6 +21,7 @@ class IndexPageSubscriber extends ActorSubscriber with ActorLogging {
 
   def receive = {
     case ActorSubscriberMessage.OnNext(element) => {
+      //TODO remove this delay
       Thread.sleep(2000)
       processElement(element.asInstanceOf[IndexPage])
     }

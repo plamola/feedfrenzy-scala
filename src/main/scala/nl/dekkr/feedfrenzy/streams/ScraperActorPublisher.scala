@@ -3,7 +3,6 @@ package nl.dekkr.feedfrenzy.streams
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorLogging
-import akka.event.Logging
 import akka.stream.actor.{ ActorPublisher, ActorPublisherMessage }
 import nl.dekkr.feedfrenzy.model.{ Syndication, Scraper }
 import scala.util.{ Failure, Success, Try }
@@ -18,12 +17,11 @@ class ScraperActorPublisher extends ActorPublisher[Scraper] with ActorLogging {
   import scala.concurrent.duration._
 
   implicit val ec = context.dispatcher
-  //val getNewJobs = context.system.scheduler.schedule(1 second, 1 second, self, NewJobListing)
 
-  val getNewJobs = context.system.scheduler.schedule(
-    Duration.create(0, TimeUnit.MILLISECONDS),
-    Duration.create(1, TimeUnit.MINUTES),
-    self, NewJobListing)
+  //  val getNewJobs = context.system.scheduler.schedule(
+  //    Duration.create(0, TimeUnit.MILLISECONDS),
+  //    Duration.create(1, TimeUnit.MINUTES),
+  //    self, NewJobListing)
 
   var reloadScrapers = true
   var scrapers = List.empty[Scraper]
@@ -59,7 +57,7 @@ class ScraperActorPublisher extends ActorPublisher[Scraper] with ActorLogging {
 
   override def postStop() = {
     log.info("Stopping ScraperActorPublisher")
-    getNewJobs.cancel()
+    //    getNewJobs.cancel()
   }
 
   def generateElement(): Try[Option[Scraper]] = {

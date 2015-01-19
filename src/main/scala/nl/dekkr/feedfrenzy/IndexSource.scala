@@ -4,9 +4,12 @@ import akka.actor.{ ActorSystem, Props }
 import akka.stream.FlowMaterializer
 import akka.stream.actor.{ ActorSubscriber, ActorPublisher }
 import akka.stream.scaladsl._
-import nl.dekkr.feedfrenzy.model.{ IndexPage, Scraper }
-import nl.dekkr.feedfrenzy.streams.{ IndexPageSubscriber, ScraperActorPublisher }
-import org.reactivestreams.Subscriber
+import akka.stream.stage.{ PushPullStage, Directive, Context, TerminationDirective }
+import nl.dekkr.feedfrenzy.model.{ ContentBlock, IndexPage, Scraper }
+import nl.dekkr.feedfrenzy.streams._
+import nl.dekkr.feedfrenzy.streams.flows.SplitIndexIntoBlocks
+import nl.dekkr.feedfrenzy.streams.sinks.IndexPageSubscriber
+import org.reactivestreams.{ Publisher, Subscriber }
 import scala.util.{ Failure, Success, Try }
 import scalaj.http.Http
 
@@ -25,16 +28,20 @@ object IndexSource {
     println("####################")
     println("Show stream results:")
 
-    val jobSourceActor = system.actorOf(Props[ScraperActorPublisher], "JobSource")
-    val src: Source[Scraper] = Source(ActorPublisher[Scraper](jobSourceActor))
+    val publisher: Publisher[Scraper] = ActorPublisher[Scraper](system.actorOf(Props[ScraperActorPublisher], "JobSource"))
+    val subscriber: Subscriber[IndexPage] = ActorSubscriber[IndexPage](system.actorOf(Props[IndexPageSubscriber], "IndexPageSubscriber"))
 
     val indexPageFlow: Flow[Scraper, IndexPage] = Flow[Scraper]
       .map(
         thisScraper => {
-          println(s"IndexPageFlow: [${thisScraper.id.getOrElse(0)}] - url: ${thisScraper.sourceUrl}")
-          IndexPage(scraper = thisScraper, content = Some(pageContent(thisScraper.sourceUrl)))
+          val content = pageContent(thisScraper.sourceUrl)
+          println(s"IndexPageFlow: [${thisScraper.id.getOrElse(0)}] - url: ${thisScraper.sourceUrl} (blocks: ${content.split("<div").length})")
+          IndexPage(scraper = thisScraper, content = Some(content))
         }
       )
+
+    val splitIntoBlocks: Flow[IndexPage, ContentBlock] = Flow[IndexPage]
+      .transform(() => new SplitIndexIntoBlocks())
 
     val contentSink = ForeachSink[IndexPage] {
       el =>
@@ -47,18 +54,22 @@ object IndexSource {
         println(s"LoggerSink: [${el.scraper.id.getOrElse(0)}]")
     }
 
-    val subscriber: Subscriber[IndexPage] = ActorSubscriber[IndexPage](system.actorOf(Props[IndexPageSubscriber], "IndexPageSubscriber"))
-
-    val sinkB: Sink[IndexPage] = Sink(subscriber)
+    val printSink = ForeachSink[ContentBlock] {
+      value =>
+        println(s"PrintSink: [${value.content}]")
+    }
 
     val materialized = FlowGraph {
       implicit b =>
         import FlowGraphImplicits._
         val broadcast = Broadcast[IndexPage]
-        src ~> indexPageFlow ~> broadcast ~> sinkB
-        broadcast ~> contentSink
-        broadcast ~> loggerSink
-    }.run
+        Source(publisher) ~> indexPageFlow ~> broadcast ~> Sink(subscriber)
+        broadcast ~> splitIntoBlocks ~> printSink
+      //       broadcast ~> contentSink
+      //        broadcast ~> loggerSink
+    }
+
+    materialized.run
 
     // import system.dispatcher
     //    materialized.get(loggerSink).onComplete {
@@ -81,3 +92,4 @@ object IndexSource {
   }
 
 }
+

@@ -10,6 +10,8 @@ case class Scraper(id: Option[Int] = None, sourceUrl: String, singlePage: Boolea
 
 case class IndexPage(scraper: Scraper, content: Option[String] = None)
 
+case class ContentBlock(scraper: Scraper, content: Option[String] = None, uid: Option[String] = None, uri: Option[String] = None)
+
 case class IndexBlock(id: Option[Int] = None, indexpageid: Option[Int] = None, sourceurl: String, updateddate: DateTime = DateTime.now(), content: Option[String] = None)
 
 case class Feed(id: Option[Int] = None, feedurl: String, link: Option[String] = None, title: Option[String] = None, description: Option[String] = None, copyright: Option[String] = None, image: Option[String] = None, publisheddate: Option[DateTime] = None, updateddate: DateTime = DateTime.now(), updateInterval: Int = 60, nextupdate: Long = DateTime.now().getMillis, lastarticlecount: Int = 0, faviconfk: Int = 0)
