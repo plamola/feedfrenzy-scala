@@ -1,17 +1,15 @@
 package nl.dekkr.feedfrenzy
 
+import akka.actor.Status.{ Failure, Success }
 import akka.actor.{ ActorSystem, Props }
 import akka.stream.FlowMaterializer
 import akka.stream.actor.{ ActorSubscriber, ActorPublisher }
 import akka.stream.scaladsl._
-import nl.dekkr.feedfrenzy.model.{ ContentBlock, IndexPage, Scraper }
-import nl.dekkr.feedfrenzy.streams._
-import nl.dekkr.feedfrenzy.streams.flows.SplitIndexIntoBlocks
+import nl.dekkr.feedfrenzy.model.ContentBlock
+import nl.dekkr.feedfrenzy.streams.flows.{ GetPageContent, SplitIndexIntoBlocks }
 import nl.dekkr.feedfrenzy.streams.sinks.IndexPageSubscriber
 import nl.dekkr.feedfrenzy.streams.sources.ScraperActorPublisher
 import org.reactivestreams.{ Publisher, Subscriber }
-import scala.util.{ Failure, Success, Try }
-import scalaj.http.Http
 
 /**
  * Author: Matthijs
@@ -25,54 +23,41 @@ object IndexSource {
     implicit val system = ActorSystem("feedfrenzy-collector")
     implicit val materializer = FlowMaterializer()
 
-    println("####################")
-    println("Show stream results:")
+    println("########################################################################################################################")
 
-    val publisher: Publisher[Scraper] = ActorPublisher[Scraper](system.actorOf(Props[ScraperActorPublisher], "JobSource"))
-    val subscriber: Subscriber[IndexPage] = ActorSubscriber[IndexPage](system.actorOf(Props[IndexPageSubscriber], "IndexPageSubscriber"))
+    val publisher: Publisher[ContentBlock] = ActorPublisher[ContentBlock](system.actorOf(Props[ScraperActorPublisher], "JobSource"))
+    val subscriber: Subscriber[ContentBlock] = ActorSubscriber[ContentBlock](system.actorOf(Props[IndexPageSubscriber], "IndexPageSubscriber"))
 
-    val indexPageFlow: Flow[Scraper, IndexPage] = Flow[Scraper]
-      .map(
-        thisScraper => {
-          val content = pageContent(thisScraper.sourceUrl)
-          println(s"IndexPageFlow: [${thisScraper.id.getOrElse(0)}] - url: ${thisScraper.sourceUrl} (blocks: ${content.split("<div").length})")
-          IndexPage(scraper = thisScraper, content = Some(content))
-        }
-      )
+    val indexPageFlow: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
+      .transform(() => new GetPageContent())
 
-    val splitIntoBlocks: Flow[IndexPage, ContentBlock] = Flow[IndexPage]
+    val splitIntoBlocks: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
       .transform(() => new SplitIndexIntoBlocks())
 
-    val contentSink = ForeachSink[IndexPage] {
-      el =>
-        println(s"ContentSink: [${el.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
-        Thread.sleep(1000)
-    }
-
-    val loggerSink = ForeachSink[IndexPage] {
+    val loggerSink = ForeachSink[ContentBlock] {
       el =>
         println(s"LoggerSink: [${el.scraper.id.getOrElse(0)}]")
     }
 
     val printSink = ForeachSink[ContentBlock] {
       value =>
-        println(s"PrintSink: [${value.content}]")
+        println(s"PrintSink: [${value.scraper.id.get}] [${value.content.get.length}]")
     }
+
+    //val fileThis = Sink(subscriber)
 
     val materialized = FlowGraph {
       implicit b =>
         import FlowGraphImplicits._
-        val broadcast = Broadcast[IndexPage]
+        val broadcast = Broadcast[ContentBlock]
         Source(publisher) ~> indexPageFlow ~> broadcast ~> Sink(subscriber)
-        broadcast ~> splitIntoBlocks ~> printSink
-      //       broadcast ~> contentSink
-      //        broadcast ~> loggerSink
-    }
+        //broadcast ~> splitIntoBlocks ~> printSink
+        broadcast ~> splitIntoBlocks ~> Sink.ignore
+      // broadcast ~> loggerSink
+    }.run
 
-    materialized.run
-
-    // import system.dispatcher
-    //    materialized.get(loggerSink).onComplete {
+    //    import system.dispatcher
+    //    materialized.get(fileThis).onComplete {
     //      case Success(_) =>
     //        //Try(output.close())
     //        system.shutdown()
@@ -82,13 +67,6 @@ object IndexSource {
     //        system.shutdown()
     //    }
 
-  }
-
-  def pageContent(uri: String): String = {
-    Try(Http(uri).asString) match {
-      case Success(content) => content
-      case Failure(e)       => e.getMessage
-    }
   }
 
 }

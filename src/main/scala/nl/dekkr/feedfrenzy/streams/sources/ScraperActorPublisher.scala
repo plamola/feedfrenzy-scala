@@ -2,7 +2,7 @@ package nl.dekkr.feedfrenzy.streams.sources
 
 import akka.actor.ActorLogging
 import akka.stream.actor.{ ActorPublisher, ActorPublisherMessage }
-import nl.dekkr.feedfrenzy.model.{ Scraper, Syndication }
+import nl.dekkr.feedfrenzy.model.{ ContentBlock, Scraper, Syndication }
 
 import scala.util.{ Failure, Success, Try }
 
@@ -10,9 +10,7 @@ import scala.util.{ Failure, Success, Try }
  * Created by Matthijs Dekker on 14/01/15.
  */
 
-class ScraperActorPublisher extends ActorPublisher[Scraper] with ActorLogging {
-
-  //  implicit val ec = context.dispatcher
+class ScraperActorPublisher extends ActorPublisher[ContentBlock] with ActorLogging {
 
   var reloadScrapers = true
   var scrapers = List.empty[Scraper]
@@ -47,7 +45,7 @@ class ScraperActorPublisher extends ActorPublisher[Scraper] with ActorLogging {
     //    getNewJobs.cancel()
   }
 
-  def generateElement(): Try[Option[Scraper]] = {
+  def generateElement(): Try[Option[ContentBlock]] = {
     if (scrapers.size == 0 && reloadScrapers) {
       reloadScrapers = false
       createResources()
@@ -57,7 +55,7 @@ class ScraperActorPublisher extends ActorPublisher[Scraper] with ActorLogging {
     } else {
       val element = scrapers.head
       scrapers = scrapers.tail
-      Success(Some(element))
+      Success(Some(new ContentBlock(scraper = element, uri = Some(element.sourceUrl))))
     }
   }
 

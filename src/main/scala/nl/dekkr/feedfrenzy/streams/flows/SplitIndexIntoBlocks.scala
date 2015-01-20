@@ -1,17 +1,17 @@
 package nl.dekkr.feedfrenzy.streams.flows
 
 import akka.stream.stage.{ Context, Directive, PushPullStage, TerminationDirective }
-import nl.dekkr.feedfrenzy.model.{ ContentBlock, IndexPage }
+import nl.dekkr.feedfrenzy.model.ContentBlock
 
 /**
  * Author: matthijs
  * Created on: 19 Jan 2015.
  */
-class SplitIndexIntoBlocks() extends PushPullStage[IndexPage, ContentBlock] {
+class SplitIndexIntoBlocks() extends PushPullStage[ContentBlock, ContentBlock] {
   private var blocks: List[String] = List.empty[String]
-  private var content: IndexPage = _
+  private var content: ContentBlock = _
 
-  override def onPush(elem: IndexPage, ctx: Context[ContentBlock]): Directive = {
+  override def onPush(elem: ContentBlock, ctx: Context[ContentBlock]): Directive = {
     content = elem
     // TODO Split should be scraper dependent (current implementation is for demo)
     blocks = elem.content.getOrElse("").split("<div").toList

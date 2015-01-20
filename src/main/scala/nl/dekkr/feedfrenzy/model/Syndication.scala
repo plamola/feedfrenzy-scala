@@ -8,7 +8,7 @@ import scala.slick.lifted.TableQuery
 
 case class Scraper(id: Option[Int] = None, sourceUrl: String, singlePage: Boolean = false)
 
-case class IndexPage(scraper: Scraper, content: Option[String] = None)
+//case class IndexPage(scraper: Scraper, content: Option[String] = None)
 
 case class ContentBlock(scraper: Scraper, content: Option[String] = None, uid: Option[String] = None, uri: Option[String] = None)
 
@@ -83,13 +83,13 @@ object Syndication {
       feeds += Feed(feedurl = "http://news.google.com")
 
     if (feeds.list.size < 4)
-      feeds += Feed(feedurl = "http://news.yahoo.com")
+      feeds += Feed(feedurl = "https://news.yahoo.com")
 
     if (feeds.list.size < 5)
       feeds += Feed(feedurl = "http://www.theverge.com/")
 
     if (feeds.list.size < 6)
-      feeds += Feed(feedurl = "http://news.ycombinator.com/")
+      feeds += Feed(feedurl = "https://news.ycombinator.com/")
 
   }
 
