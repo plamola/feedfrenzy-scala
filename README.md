@@ -22,3 +22,15 @@ The backend will use an implementation of [Reactive Streams](http://www.reactive
 The front-end will most likely by written in AngularJS, which talks to Spray or Akka Http endpoints.
 
 
+
+###Stream
+
+* GetUrls [Source]
+* GetPage
+* Strip
+* SplitIntoBlocks
+* CreateUriAndUID
+* GetPage
+* Strip
+* CreateArticle
+* Store [Sink]
