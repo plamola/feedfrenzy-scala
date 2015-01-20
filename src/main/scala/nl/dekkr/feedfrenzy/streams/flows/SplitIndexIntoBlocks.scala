@@ -1,10 +1,10 @@
 package nl.dekkr.feedfrenzy.streams.flows
 
-import akka.stream.stage.{Context, Directive, PushPullStage, TerminationDirective}
-import nl.dekkr.feedfrenzy.model.{ContentBlock, IndexPage}
+import akka.stream.stage.{ Context, Directive, PushPullStage, TerminationDirective }
+import nl.dekkr.feedfrenzy.model.{ ContentBlock, IndexPage }
 
 /**
- * Author: matthijs 
+ * Author: matthijs
  * Created on: 19 Jan 2015.
  */
 class SplitIndexIntoBlocks() extends PushPullStage[IndexPage, ContentBlock] {

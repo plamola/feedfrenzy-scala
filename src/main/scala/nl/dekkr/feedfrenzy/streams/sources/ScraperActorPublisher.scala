@@ -1,36 +1,23 @@
-package nl.dekkr.feedfrenzy.streams
-
-import java.util.concurrent.TimeUnit
+package nl.dekkr.feedfrenzy.streams.sources
 
 import akka.actor.ActorLogging
 import akka.stream.actor.{ ActorPublisher, ActorPublisherMessage }
-import nl.dekkr.feedfrenzy.model.{ Syndication, Scraper }
+import nl.dekkr.feedfrenzy.model.{ Scraper, Syndication }
+
 import scala.util.{ Failure, Success, Try }
 
 /**
  * Created by Matthijs Dekker on 14/01/15.
  */
-case class NewJobListing()
 
 class ScraperActorPublisher extends ActorPublisher[Scraper] with ActorLogging {
 
-  import scala.concurrent.duration._
-
-  implicit val ec = context.dispatcher
-
-  //  val getNewJobs = context.system.scheduler.schedule(
-  //    Duration.create(0, TimeUnit.MILLISECONDS),
-  //    Duration.create(1, TimeUnit.MINUTES),
-  //    self, NewJobListing)
+  //  implicit val ec = context.dispatcher
 
   var reloadScrapers = true
   var scrapers = List.empty[Scraper]
 
   def receive = {
-    case NewJobListing() =>
-      log.info("Received NewJobListing message")
-      reloadScrapers = true
-
     case ActorPublisherMessage.Request(n) =>
       while (isActive && totalDemand > 0) {
         generateElement() match {

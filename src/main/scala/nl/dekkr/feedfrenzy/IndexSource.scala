@@ -4,11 +4,11 @@ import akka.actor.{ ActorSystem, Props }
 import akka.stream.FlowMaterializer
 import akka.stream.actor.{ ActorSubscriber, ActorPublisher }
 import akka.stream.scaladsl._
-import akka.stream.stage.{ PushPullStage, Directive, Context, TerminationDirective }
 import nl.dekkr.feedfrenzy.model.{ ContentBlock, IndexPage, Scraper }
 import nl.dekkr.feedfrenzy.streams._
 import nl.dekkr.feedfrenzy.streams.flows.SplitIndexIntoBlocks
 import nl.dekkr.feedfrenzy.streams.sinks.IndexPageSubscriber
+import nl.dekkr.feedfrenzy.streams.sources.ScraperActorPublisher
 import org.reactivestreams.{ Publisher, Subscriber }
 import scala.util.{ Failure, Success, Try }
 import scalaj.http.Http
