@@ -5,7 +5,7 @@ import akka.actor.{ ActorSystem, Props }
 import akka.stream.FlowMaterializer
 import akka.stream.actor.{ ActorSubscriber, ActorPublisher }
 import akka.stream.scaladsl._
-import nl.dekkr.feedfrenzy.model.ContentBlock
+import nl.dekkr.feedfrenzy.model.{ Scraper, Syndication, ContentBlock }
 import nl.dekkr.feedfrenzy.streams.flows.{ GetPageContent, SplitIndexIntoBlocks }
 import nl.dekkr.feedfrenzy.streams.sinks.IndexPageSubscriber
 import nl.dekkr.feedfrenzy.streams.sources.ScraperActorPublisher
@@ -25,39 +25,43 @@ object IndexSource {
 
     println("########################################################################################################################")
 
-    val publisher: Publisher[ContentBlock] = ActorPublisher[ContentBlock](system.actorOf(Props[ScraperActorPublisher], "JobSource"))
-    val subscriber: Subscriber[ContentBlock] = ActorSubscriber[ContentBlock](system.actorOf(Props[IndexPageSubscriber], "IndexPageSubscriber"))
+    //val publisher: Publisher[ContentBlock] = ActorPublisher[ContentBlock](system.actorOf(Props[ScraperActorPublisher], "JobSource"))
+    //val subscriber: Subscriber[ContentBlock] = ActorSubscriber[ContentBlock](system.actorOf(Props[IndexPageSubscriber], "IndexPageSubscriber"))
 
-    val indexPageFlow: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
+    val src: Source[Scraper] = Source(Syndication.getRunnableScrapers)
+
+    val scraperToContentBlock: Flow[Scraper, ContentBlock] = Flow[Scraper]
+      .map(scraper =>
+        new ContentBlock(scraper = scraper, uri = Some(scraper.sourceUrl))
+      )
+
+    val fetchPage: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
       .transform(() => new GetPageContent())
 
     val splitIntoBlocks: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
       .transform(() => new SplitIndexIntoBlocks())
-
-    val loggerSink = ForeachSink[ContentBlock] {
-      el =>
-        println(s"LoggerSink: [${el.scraper.id.getOrElse(0)}]")
-    }
 
     val printSink = ForeachSink[ContentBlock] {
       value =>
         println(s"PrintSink: [${value.scraper.id.get}] [${value.content.get.length}]")
     }
 
-    //val fileThis = Sink(subscriber)
+    val resultSink = ForeachSink[ContentBlock] {
+      el =>
+        println(s"ResultSink: [${el.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
+    }
 
     val materialized = FlowGraph {
       implicit b =>
         import FlowGraphImplicits._
         val broadcast = Broadcast[ContentBlock]
-        Source(publisher) ~> indexPageFlow ~> broadcast ~> Sink(subscriber)
-        //broadcast ~> splitIntoBlocks ~> printSink
+        //        Source(publisher) ~> fetchPage ~> broadcast ~> Sink(subscriber)
+        src ~> scraperToContentBlock ~> fetchPage ~> broadcast ~> resultSink
         broadcast ~> splitIntoBlocks ~> Sink.ignore
-      // broadcast ~> loggerSink
     }.run
 
     //    import system.dispatcher
-    //    materialized.get(fileThis).onComplete {
+    //    materialized.get(sink).onComplete {
     //      case Success(_) =>
     //        //Try(output.close())
     //        system.shutdown()
