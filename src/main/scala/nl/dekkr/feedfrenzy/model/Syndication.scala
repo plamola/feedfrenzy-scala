@@ -6,14 +6,6 @@ import org.joda.time.DateTime
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.lifted.TableQuery
 
-case class Scraper(id: Option[Int] = None, sourceUrl: String, singlePage: Boolean = false)
-
-case class ContentBlock(scraper: Scraper, content: Option[String] = None, uid: Option[String] = None, uri: Option[String] = None)
-
-case class Feed(id: Option[Int] = None, feedurl: String, link: Option[String] = None, title: Option[String] = None, description: Option[String] = None, copyright: Option[String] = None, image: Option[String] = None, publisheddate: Option[DateTime] = None, updateddate: DateTime = DateTime.now(), updateInterval: Int = 60, nextupdate: Long = DateTime.now().getMillis, lastarticlecount: Int = 0, faviconfk: Int = 0)
-
-case class Article(id: Option[Int] = None, feedid: Option[Int] = None, uri: String, link: Option[String] = None, title: Option[String] = None, content: Option[String] = None, author: Option[String] = None, publisheddate: Option[DateTime] = None, updateddate: Option[DateTime] = None, lastsynceddate: Option[DateTime] = None)
-
 /**
  * Handles syndication processing
  */
