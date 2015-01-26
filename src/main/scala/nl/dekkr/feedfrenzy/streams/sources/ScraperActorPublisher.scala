@@ -2,7 +2,7 @@ package nl.dekkr.feedfrenzy.streams.sources
 
 import akka.actor.ActorLogging
 import akka.stream.actor.{ ActorPublisher, ActorPublisherMessage }
-import nl.dekkr.feedfrenzy.model.{ ContentBlock, Scraper, Syndication }
+import nl.dekkr.feedfrenzy.model.{ ScraperRepositoryDbComponent, ContentBlock, Scraper, Syndication }
 
 import scala.util.{ Failure, Success, Try }
 
@@ -68,7 +68,7 @@ class ScraperActorPublisher extends ActorPublisher[ContentBlock] with ActorLoggi
     if (scrapers.size == 0 && reloadScrapers) {
       log.info("Getting new resources")
       reloadScrapers = false
-      scrapers = Syndication.getRunnableScrapers
+      scrapers = new ScraperRepositoryDbComponent {}.scraperRepository.getRunnableScrapers
     }
   }
 

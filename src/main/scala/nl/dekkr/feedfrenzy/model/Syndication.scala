@@ -49,48 +49,4 @@ object Syndication {
     feeds.filter(_.feedurl === url).delete
   }
 
-  def getRunnableScrapers: List[Scraper] = {
-    try {
-      val feeds = TableQuery[Tables.FeedTable]
-      implicit val session = Schema.getSession
-      Schema.createOrUpdate(session)
-
-      addDummyContent()
-
-      feeds.list.map(feed =>
-        Scraper(id = feed.id, sourceUrl = feed.feedurl, singlePage = true)
-      )
-    } catch {
-      case e: Exception =>
-        println(s"ERROR: ${e.getMessage} [${e.getCause}]")
-        List.empty
-    }
-  }
-
-  def addDummyContent() {
-    val feeds = TableQuery[Tables.FeedTable]
-    implicit val session = Schema.getSession
-    Schema.createOrUpdate(session)
-
-    // Add some dummy feeds
-    if (feeds.list.size < 1)
-      feeds += Feed(feedurl = "http://nu.nl")
-
-    if (feeds.list.size < 2)
-      feeds += Feed(feedurl = "http://dagartikel.nl")
-
-    if (feeds.list.size < 3)
-      feeds += Feed(feedurl = "http://news.google.com")
-
-    if (feeds.list.size < 4)
-      feeds += Feed(feedurl = "https://news.yahoo.com")
-
-    if (feeds.list.size < 5)
-      feeds += Feed(feedurl = "http://www.theverge.com/")
-
-    if (feeds.list.size < 6)
-      feeds += Feed(feedurl = "https://news.ycombinator.com/")
-
-  }
-
 }
