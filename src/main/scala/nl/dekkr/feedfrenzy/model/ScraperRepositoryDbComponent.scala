@@ -1,6 +1,6 @@
 package nl.dekkr.feedfrenzy.model
 
-import nl.dekkr.feedfrenzy.db.{ Tables, Schema }
+import nl.dekkr.feedfrenzy.db.{ Schema, Tables }
 
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.lifted.TableQuery
@@ -60,4 +60,5 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
     }
 
   }
+
 }
