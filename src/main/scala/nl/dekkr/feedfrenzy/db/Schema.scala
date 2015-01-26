@@ -47,7 +47,6 @@ object Schema {
     Tables.scraperTable.ddl.create
     Tables.feedTable.ddl.create
     Tables.articleTable.ddl.create
-    //    Tables.indexpageTable.ddl.create
   }
 
   private def getConfiguredSession(conf: Config) = {
