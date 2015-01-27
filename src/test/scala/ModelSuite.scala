@@ -5,13 +5,10 @@ import nl.dekkr.feedfrenzy.model.Syndication
  * Created by Matthijs Dekker on 26/01/15.
  */
 class ModelSuite extends FeedFrenzyTestBase {
+  session = Schema.getSession
+  cleanDB()
 
   val testUri = "http://test.test.uri"
-
-  def before() = {
-    session = Schema.getSession
-    cleanDB()
-  }
 
   "ModelSuite" should {
     "Add a feed" in {
