@@ -23,12 +23,6 @@ object Schema {
       } else {
         // Update existing table structure
       }
-      //      if (!existingTables.exists(_.name.name.equalsIgnoreCase("indexpage"))) {
-      //        Tables.indexpageTable.ddl.create
-      //      } else {
-      //        // Update existing table structure
-      //      }
-
       if (!existingTables.exists(_.name.name.equalsIgnoreCase("feed"))) {
         Tables.feedTable.ddl.create
       } else {
