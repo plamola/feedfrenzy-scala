@@ -39,8 +39,6 @@ object Syndication {
 
   def getFeedById(id: Int): Option[Feed] = feeds.filter(_.id === id).firstOption
 
-  def removeFeed(url: String): Int = {
-    feeds.filter(_.feedurl === url).delete
-  }
+  def removeFeed(url: String): Int = feeds.filter(_.feedurl === url).delete
 
 }
