@@ -29,6 +29,12 @@ object Syndication {
     query.update(updatedFeed)
   }
 
+  def addNewFeed(url: String): Feed = {
+    if (feeds.filter(_.feedurl === url).list.size == 0)
+      feeds += Feed(feedurl = url)
+    getFeed(url).get
+  }
+
   def getFeed(url: String): Option[Feed] = feeds.filter(_.feedurl === url).firstOption
 
   def getFeedById(id: Int): Option[Feed] = feeds.filter(_.id === id).firstOption
