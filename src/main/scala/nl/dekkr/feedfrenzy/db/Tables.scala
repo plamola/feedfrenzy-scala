@@ -1,5 +1,7 @@
 package nl.dekkr.feedfrenzy.db
 
+import nl.dekkr.feedfrenzy.model.ActionPhase.ActionPhase
+import nl.dekkr.feedfrenzy.model.ActionType.ActionType
 import nl.dekkr.feedfrenzy.model._
 
 /** Stand-alone Slick data model for immediate use */
@@ -75,16 +77,16 @@ trait Tables {
   class ScraperActionTable(tag: Tag) extends Table[ScraperAction](tag, "scraperaction") {
     val id: Column[Int] = column[Int]("action_id", O.AutoInc, O.PrimaryKey)
     val scraperid: Column[Int] = column[Int]("scraper_id")
-    //val actionPhase: Column[ActionPhase] = ActionPhase.CONTENT,
+    val actionPhase: Column[ActionPhase] = column[ActionPhase]("action_phase")
     val actionOrder: Column[Int] = column[Int]("action_order")
-    //val actionType: Column[ActionType] = ActionType.CSS_SELECTOR,
+    val actionType: Column[ActionType] = column[ActionType]("action_type")
     val actionInput: Column[String] = column[String]("action_input_type", O.Length(1024, varying = true))
     val actionTemplate: Column[String] = column[String]("action_template", O.Length(1024, varying = true))
     val actionReplaceWith: Column[String] = column[String]("action_replace_with", O.Length(1024, varying = true))
     val actionOutputVariable: Column[String] = column[String]("action_output_variable", O.Length(1024, varying = true))
 
     def * : ProvenShape[ScraperAction] =
-      (id.?, scraperid.?, actionOrder, actionInput.?, actionTemplate.?, actionReplaceWith.?, actionOutputVariable.?) <> (ScraperAction.tupled, ScraperAction.unapply)
+      (id.?, scraperid.?, actionPhase, actionOrder, actionType, actionInput.?, actionTemplate.?, actionReplaceWith.?, actionOutputVariable.?) <> (ScraperAction.tupled, ScraperAction.unapply)
 
     def feed: ForeignKeyQuery[ScraperTable, Scraper] =
       foreignKey("scraper_fk", scraperid, TableQuery[ScraperTable])(_.id)

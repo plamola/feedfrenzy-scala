@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.stream.FlowMaterializer
 import akka.stream.scaladsl._
 import nl.dekkr.feedfrenzy.model._
-import nl.dekkr.feedfrenzy.streams.flows.{GetPageContent, SplitIndexIntoBlocks}
+import nl.dekkr.feedfrenzy.streams.flows.{ GetPageContent, SplitIndexIntoBlocks }
 
 /**
  * Created by Matthijs Dekker on 26/01/15.
@@ -49,8 +49,8 @@ object CollectArticlesStream {
 
         // @formatter:off
         src ~> scraperToContentBlock ~> fetchPage ~> broadcast ~> resultSink
-                                                     broadcast ~> splitIntoBlocks ~> Sink.ignore
-        // @formatter:on
+        broadcast ~> splitIntoBlocks ~> Sink.ignore
+      // @formatter:on
 
     }.run
 
