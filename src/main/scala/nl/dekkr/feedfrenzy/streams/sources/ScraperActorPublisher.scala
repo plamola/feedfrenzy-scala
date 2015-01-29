@@ -68,7 +68,7 @@ class ScraperActorPublisher extends ActorPublisher[ContentBlock] with ActorLoggi
     if (scrapers.size == 0 && reloadScrapers) {
       log.info("Getting new resources")
       reloadScrapers = false
-      scrapers = new ScraperRepositoryDbComponent {}.scraperRepository.getRunnableScrapers
+      scrapers = new ScraperRepositoryDbComponent {}.scraperRepository.findUpdatable
     }
   }
 

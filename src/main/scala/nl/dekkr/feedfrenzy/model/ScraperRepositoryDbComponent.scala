@@ -16,9 +16,8 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
 
     def findUpdatable = getRunnableScrapers
 
-    def getRunnableScrapers: List[Scraper] = {
+    private def getRunnableScrapers: List[Scraper] = {
       implicit val session = Schema.getSession
-      val feeds = TableQuery[Tables.FeedTable]
       try {
         val feeds = TableQuery[Tables.FeedTable]
         Schema.createOrUpdate(session)
@@ -33,7 +32,7 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
       }
     }
 
-    def addDummyContent() {
+    private def addDummyContent() {
       implicit val session = Schema.getSession
       val feeds = TableQuery[Tables.FeedTable]
       val scrapers = TableQuery[Tables.ScraperTable]
