@@ -43,9 +43,9 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
       try {
         val scraperActions = TableQuery[Tables.ScraperActionTable]
         val actions = for {
-          a <- scraperActions.sortBy(_.actionOrder.asc) if a.scraperid === scraperId
+          a <- scraperActions if a.scraperid === scraperId
         } yield a
-        actions.list
+        actions.sortBy(s => (s.actionPhase.asc, s.actionOrder.asc)).list
       } catch {
         case e: Exception =>
           println(s"ERROR: ${e.getMessage} [${e.getCause}]")
