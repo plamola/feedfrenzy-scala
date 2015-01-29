@@ -36,7 +36,44 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
     def addDummyContent() {
       implicit val session = Schema.getSession
       val feeds = TableQuery[Tables.FeedTable]
+      val scrapers = TableQuery[Tables.ScraperTable]
+      val scraperActions = TableQuery[Tables.ScraperActionTable]
+
       Schema.createOrUpdate(session)
+      // Add some dummy scrapers
+      if (scrapers.list.size < 1)
+        scrapers += Scraper(sourceUrl = "http://nu.nl")
+
+      if (scrapers.list.size < 2)
+        scrapers += Scraper(sourceUrl = "http://dagartikel.nl", singlePage = true)
+
+      if (scrapers.list.size < 3)
+        scrapers += Scraper(sourceUrl = "http://rtvutrecht.nl")
+
+      // Add some dummy scrapers actions
+      val scraperId = Some(3)
+
+      if (scraperActions.list.size < 1) {
+        scraperActions ++= Seq(
+          ScraperAction(None, scraperId, ActionPhase.INDEX, 1, ActionType.CSS_SELECTOR, None, Some("div.actueel div.actueel-text p a"), None),
+
+          ScraperAction(None, scraperId, ActionPhase.UIDS, 1, ActionType.ATTRIBUTE, Some("block"), Some("href"), Some("uri")),
+          ScraperAction(None, scraperId, ActionPhase.UIDS, 2, ActionType.REGEX, Some("uri"), Some("(?!/nieuws/)(\\\\d+)"), Some("uid")),
+          ScraperAction(None, scraperId, ActionPhase.UIDS, 3, ActionType.TEMPLATE, None, Some("http://www.rtvutrecht.nl/nieuws/{uid}"), Some("feeditem_url")),
+          ScraperAction(None, scraperId, ActionPhase.UIDS, 4, ActionType.TEMPLATE, None, Some("{feeditem_url}"), Some("feeditem_uid")),
+
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 1, ActionType.CSS_SELECTOR, Some("contentBody"), Some("div#Midden>p"), Some("content")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 2, ActionType.CSS_SELECTOR, Some("contentBody"), Some("div#Content h1.border-top"), Some("feeditem_title")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 3, ActionType.CSS_SELECTOR, Some("contentBody"), Some("div#Content p.verslaggever"), Some("verslaggeverregel")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 4, ActionType.REGEX, Some("verslaggeverregel"), Some("(.*)(?=\\&middot;)"), Some("feeditem_author")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 5, ActionType.REGEX, Some("verslaggeverregel"), Some("(\\d{1,2}\\s\\w+\\s\\d{4})"), Some("datumstring")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 6, ActionType.REGEX, Some("verslaggeverregel"), Some("(\\d{1,2}\\:\\d{2})"), Some("tijdstring")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 7, ActionType.CSS_SELECTOR, Some("contentBody"), Some("div#Midden div#Carousel div.carousel-inner div.active"), Some("image")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 8, ActionType.CSS_SELECTOR_REMOVE, Some("image"), Some("div.carousel-caption"), Some("imageZonderCaption")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 9, ActionType.CSS_SELECTOR_PARENT, Some("contentBody"), Some("div#Midden>img"), Some("inlineImage")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 10, ActionType.TEMPLATE, None, Some("<p>{imageZonderCaption}{inlineImage}</p>{content}"), Some("feeditem_content"))
+        )
+      }
 
       // Add some dummy feeds
       if (feeds.list.size < 1)
@@ -49,7 +86,7 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
         feeds += Feed(feedurl = "http://news.google.com")
 
       if (feeds.list.size < 4)
-        feeds += Feed(feedurl = "https://news.yahoo.com")
+        feeds += Feed(feedurl = "http://rtvutrecht.nl", scraperId = scraperId)
 
       if (feeds.list.size < 5)
         feeds += Feed(feedurl = "http://www.theverge.com/")
