@@ -94,31 +94,5 @@ trait Tables {
   }
   lazy val scraperActionTable = new TableQuery(tag => new ScraperActionTable(tag))
 
-  /*
-actionPhase: ActionPhase = ActionPhase.CONTENT,
-action_order: Long = 1L,
-actionType: ActionType = ActionType.CSS_SELECTOR,
-actionInput: Option[String],
-actionTemplate: Option[String],
-actionReplaceWith: Option[String],
-actionOutputVariable: Option[String]
-
-
-   */
-
-  //  class IndexPageTable(tag: Tag) extends Table[IndexPage](tag, "indexpage") {
-  //    val id: Column[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-  //    val feedid: Column[Int] = column[Int]("sourceid")
-  //    val sourceurl: Column[String] = column[String]("sourceurl", O.Length(1024, varying = true))
-  //    val updateddate: Column[DateTime] = column[DateTime]("updateddate", O.Default(DateTime.now()))
-  //    val content: Column[Option[String]] = column[Option[String]]("content", O.Length(10485760, varying = true), O.Default(None))
-  //
-  //    def source: ForeignKeyQuery[FeedTable, Feed] =
-  //      foreignKey("feed_fk", feedid, TableQuery[FeedTable])(_.id)
-  //
-  //    def * : ProvenShape[IndexPage] =
-  //      (id.?, feedid.?, sourceurl, updateddate, content) <> (IndexPage.tupled, IndexPage.unapply)
-  //  }
-  //  lazy val indexpageTable = new TableQuery(tag => new IndexPageTable(tag))
 
 }
