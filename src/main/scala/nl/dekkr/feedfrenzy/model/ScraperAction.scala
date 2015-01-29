@@ -51,13 +51,13 @@ object ActionPhase extends Enumeration {
 }
 
 case class ScraperAction(
-  action_id: Option[Int],
-  scraper_id: Option[Int],
+  action_id: Option[Int] = None,
+  scraper_id: Option[Int] = None,
   actionPhase: ActionPhase = ActionPhase.CONTENT,
   action_order: Int = 1,
   actionType: ActionType = ActionType.CSS_SELECTOR,
-  actionInput: Option[String],
-  actionTemplate: Option[String],
-  actionReplaceWith: Option[String],
-  actionOutputVariable: Option[String])
+  actionInput: Option[String] = None,
+  actionTemplate: Option[String] = None,
+  actionReplaceWith: Option[String] = None,
+  actionOutputVariable: Option[String] = None)
 
