@@ -80,19 +80,18 @@ trait Tables {
     val actionPhase: Column[ActionPhase] = column[ActionPhase]("action_phase")
     val actionOrder: Column[Int] = column[Int]("action_order")
     val actionType: Column[ActionType] = column[ActionType]("action_type")
-    val actionInput: Column[String] = column[String]("action_input_type", O.Length(1024, varying = true))
-    val actionTemplate: Column[String] = column[String]("action_template", O.Length(1024, varying = true))
-    val actionReplaceWith: Column[String] = column[String]("action_replace_with", O.Length(1024, varying = true))
-    val actionOutputVariable: Column[String] = column[String]("action_output_variable", O.Length(1024, varying = true))
+    val actionInput: Column[Option[String]] = column[Option[String]]("action_input_type", O.Length(1024, varying = true), O.Default(None))
+    val actionTemplate: Column[Option[String]] = column[Option[String]]("action_template", O.Length(1024, varying = true), O.Default(None))
+    val actionReplaceWith: Column[Option[String]] = column[Option[String]]("action_replace_with", O.Length(1024, varying = true), O.Default(None))
+    val actionOutputVariable: Column[Option[String]] = column[Option[String]]("action_output_variable", O.Length(1024, varying = true), O.Default(None))
 
     def * : ProvenShape[ScraperAction] =
-      (id.?, scraperid.?, actionPhase, actionOrder, actionType, actionInput.?, actionTemplate.?, actionReplaceWith.?, actionOutputVariable.?) <> (ScraperAction.tupled, ScraperAction.unapply)
+      (id.?, scraperid.?, actionPhase, actionOrder, actionType, actionInput, actionTemplate, actionReplaceWith, actionOutputVariable) <> (ScraperAction.tupled, ScraperAction.unapply)
 
     def feed: ForeignKeyQuery[ScraperTable, Scraper] =
       foreignKey("scraper_fk", scraperid, TableQuery[ScraperTable])(_.id)
 
   }
   lazy val scraperActionTable = new TableQuery(tag => new ScraperActionTable(tag))
-
 
 }
