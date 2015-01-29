@@ -1,4 +1,4 @@
-package nl.dekkr.feedfrenzy.db
+package nl.dekkr.feedfrenzy.repository
 
 import nl.dekkr.feedfrenzy.model.ActionPhase.ActionPhase
 import nl.dekkr.feedfrenzy.model.ActionType.ActionType

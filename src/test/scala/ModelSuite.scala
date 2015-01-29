@@ -1,4 +1,4 @@
-import nl.dekkr.feedfrenzy.db.Schema
+import nl.dekkr.feedfrenzy.repository.Schema
 import nl.dekkr.feedfrenzy.model.Syndication
 
 /**

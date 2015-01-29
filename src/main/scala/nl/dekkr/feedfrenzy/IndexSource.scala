@@ -2,6 +2,7 @@ package nl.dekkr.feedfrenzy
 
 import akka.stream.scaladsl._
 import nl.dekkr.feedfrenzy.model._
+import nl.dekkr.feedfrenzy.repository.ScraperRepositoryDbComponent
 import nl.dekkr.feedfrenzy.streams.CollectArticlesStream
 
 /**

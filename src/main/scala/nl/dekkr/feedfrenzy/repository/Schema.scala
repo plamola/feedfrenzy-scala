@@ -1,4 +1,4 @@
-package nl.dekkr.feedfrenzy.db
+package nl.dekkr.feedfrenzy.repository
 
 import com.typesafe.config.{ Config, ConfigFactory }
 

@@ -1,4 +1,4 @@
-import nl.dekkr.feedfrenzy.db.{ Tables, Schema }
+import nl.dekkr.feedfrenzy.repository.{ Tables, Schema }
 
 import scala.slick.driver.PostgresDriver.simple._
 import org.scalatest.prop.Configuration

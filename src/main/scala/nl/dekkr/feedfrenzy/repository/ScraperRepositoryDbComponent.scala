@@ -1,6 +1,6 @@
-package nl.dekkr.feedfrenzy.model
+package nl.dekkr.feedfrenzy.repository
 
-import nl.dekkr.feedfrenzy.db.{ Schema, Tables }
+import nl.dekkr.feedfrenzy.model._
 import org.joda.time.DateTime
 
 import scala.slick.driver.PostgresDriver.simple._

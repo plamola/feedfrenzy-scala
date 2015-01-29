@@ -1,4 +1,6 @@
-package nl.dekkr.feedfrenzy.model
+package nl.dekkr.feedfrenzy.repository
+
+import nl.dekkr.feedfrenzy.model.{ ActionPhase, ActionType, Scraper, ScraperAction }
 
 /**
  * Created by Matthijs Dekker on 21/01/15.
