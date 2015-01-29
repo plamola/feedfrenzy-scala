@@ -58,6 +58,6 @@ case class ScraperAction(
   actionType: ActionType = ActionType.CSS_SELECTOR,
   actionInput: Option[String] = None,
   actionTemplate: Option[String] = None,
-  actionReplaceWith: Option[String] = None,
-  actionOutputVariable: Option[String] = None)
+  actionOutputVariable: Option[String] = None,
+  actionReplaceWith: Option[String] = None)
 

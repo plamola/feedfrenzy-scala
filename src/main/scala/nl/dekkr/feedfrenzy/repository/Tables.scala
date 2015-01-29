@@ -90,7 +90,7 @@ trait Tables {
     val actionOutputVariable: Column[Option[String]] = column[Option[String]]("action_output_variable", O.Length(1024, varying = true), O.Default(None))
 
     def * : ProvenShape[ScraperAction] =
-      (id.?, scraperid.?, actionPhase, actionOrder, actionType, actionInput, actionTemplate, actionReplaceWith, actionOutputVariable) <> (ScraperAction.tupled, ScraperAction.unapply)
+      (id.?, scraperid.?, actionPhase, actionOrder, actionType, actionInput, actionTemplate, actionOutputVariable, actionReplaceWith) <> (ScraperAction.tupled, ScraperAction.unapply)
 
     def scraper: ForeignKeyQuery[ScraperTable, Scraper] =
       foreignKey("scraper_fk", scraperid, TableQuery[ScraperTable])(_.id)
