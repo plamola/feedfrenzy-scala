@@ -42,6 +42,11 @@ object CollectArticlesStream {
         println(s"ResultSink: [${el.scraperDefinition.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
     }
 
+    val blockSink = ForeachSink[ContentBlock] {
+      value =>
+        println(s"BlockSink: [${value.scraperDefinition.scraper.id.get}] [${value.content.get}]")
+    }
+
     val materialized = FlowGraph {
       implicit b =>
         import akka.stream.scaladsl.FlowGraphImplicits._
@@ -50,7 +55,7 @@ object CollectArticlesStream {
 
         // @formatter:off
         src ~> scraperToContentBlock ~> fetchPage ~> broadcast ~> resultSink
-        broadcast ~> splitIntoBlocks ~> Sink.ignore
+        broadcast ~> splitIntoBlocks ~> blockSink //Sink.ignore
         broadcast ~> printSink
       // @formatter:on
 
