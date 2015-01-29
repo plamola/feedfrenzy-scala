@@ -1,15 +1,10 @@
 package nl.dekkr.feedfrenzy.streams
 
-import akka.actor.Status.{ Failure, Success }
-import akka.actor.{ ActorSystem, Props }
+import akka.actor.ActorSystem
 import akka.stream.FlowMaterializer
-import akka.stream.actor.{ ActorSubscriber, ActorPublisher }
 import akka.stream.scaladsl._
 import nl.dekkr.feedfrenzy.model._
-import nl.dekkr.feedfrenzy.streams.flows.{ GetPageContent, SplitIndexIntoBlocks }
-import nl.dekkr.feedfrenzy.streams.sinks.IndexPageSubscriber
-import nl.dekkr.feedfrenzy.streams.sources.ScraperActorPublisher
-import org.reactivestreams.{ Publisher, Subscriber }
+import nl.dekkr.feedfrenzy.streams.flows.{GetPageContent, SplitIndexIntoBlocks}
 
 /**
  * Created by Matthijs Dekker on 26/01/15.
@@ -48,11 +43,15 @@ object CollectArticlesStream {
 
     val materialized = FlowGraph {
       implicit b =>
-        import FlowGraphImplicits._
+        import akka.stream.scaladsl.FlowGraphImplicits._
         val broadcast = Broadcast[ContentBlock]
         //        Source(publisher) ~> fetchPage ~> broadcast ~> Sink(subscriber)
+
+        // @formatter:off
         src ~> scraperToContentBlock ~> fetchPage ~> broadcast ~> resultSink
-        broadcast ~> splitIntoBlocks ~> Sink.ignore
+                                                     broadcast ~> splitIntoBlocks ~> Sink.ignore
+        // @formatter:on
+
     }.run
 
     //        import system.dispatcher
