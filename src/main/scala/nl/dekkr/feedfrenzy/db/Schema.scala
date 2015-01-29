@@ -23,6 +23,11 @@ object Schema {
       } else {
         // Update existing table structure
       }
+      if (!existingTables.exists(_.name.name.equalsIgnoreCase("scraperaction"))) {
+        Tables.scraperActionTable.ddl.create
+      } else {
+        // Update existing table structure
+      }
       if (!existingTables.exists(_.name.name.equalsIgnoreCase("feed"))) {
         Tables.feedTable.ddl.create
       } else {
