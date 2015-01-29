@@ -55,12 +55,16 @@ trait Tables {
     val nextupdate: Column[Long] = column[Long]("nextupdate", O.Default(DateTime.now().getMillis))
     val lastarticlecount: Column[Int] = column[Int]("lastarticlecount", O.Default(0))
     val faviconfk: Column[Int] = column[Int]("faviconfk", O.Default(0))
+    val scraperid: Column[Option[Int]] = column[Option[Int]]("scraper_id", O.Default(None))
 
     /** Uniqueness Index over (feedurl) (database name feed_feedurl_key) */
     val index1 = index("feed_feedurl_key", feedurl, unique = true)
 
+    def scraper: ForeignKeyQuery[ScraperTable, Scraper] =
+      foreignKey("scraper_fk", scraperid, TableQuery[ScraperTable])(_.id)
+
     def * : ProvenShape[Feed] =
-      (id.?, feedurl, link, title, description, copyright, image, publisheddate, updateddate, updateInterval, nextupdate, lastarticlecount, faviconfk) <> (Feed.tupled, Feed.unapply)
+      (id.?, feedurl, link, title, description, copyright, image, publisheddate, updateddate, updateInterval, nextupdate, lastarticlecount, faviconfk, scraperid) <> (Feed.tupled, Feed.unapply)
   }
   lazy val feedTable = new TableQuery(tag => new FeedTable(tag))
 
@@ -88,7 +92,7 @@ trait Tables {
     def * : ProvenShape[ScraperAction] =
       (id.?, scraperid.?, actionPhase, actionOrder, actionType, actionInput, actionTemplate, actionReplaceWith, actionOutputVariable) <> (ScraperAction.tupled, ScraperAction.unapply)
 
-    def feed: ForeignKeyQuery[ScraperTable, Scraper] =
+    def scraper: ForeignKeyQuery[ScraperTable, Scraper] =
       foreignKey("scraper_fk", scraperid, TableQuery[ScraperTable])(_.id)
 
   }
