@@ -72,6 +72,38 @@ trait Tables {
   }
   lazy val scraperTable = new TableQuery(tag => new ScraperTable(tag))
 
+  class ScraperActionTable(tag: Tag) extends Table[ScraperAction](tag, "scraperaction") {
+    val id: Column[Int] = column[Int]("action_id", O.AutoInc, O.PrimaryKey)
+    val scraperid: Column[Int] = column[Int]("scraper_id")
+    //val actionPhase: Column[ActionPhase] = ActionPhase.CONTENT,
+    val actionOrder: Column[Int] = column[Int]("action_order")
+    //val actionType: Column[ActionType] = ActionType.CSS_SELECTOR,
+    val actionInput: Column[String] = column[String]("action_input_type", O.Length(1024, varying = true))
+    val actionTemplate: Column[String] = column[String]("action_template", O.Length(1024, varying = true))
+    val actionReplaceWith: Column[String] = column[String]("action_replace_with", O.Length(1024, varying = true))
+    val actionOutputVariable: Column[String] = column[String]("action_output_variable", O.Length(1024, varying = true))
+
+    def * : ProvenShape[ScraperAction] =
+      (id.?, scraperid.?, actionOrder, actionInput.?, actionTemplate.?, actionReplaceWith.?, actionOutputVariable.?) <> (ScraperAction.tupled, ScraperAction.unapply)
+
+    def feed: ForeignKeyQuery[ScraperTable, Scraper] =
+      foreignKey("scraper_fk", scraperid, TableQuery[ScraperTable])(_.id)
+
+  }
+  lazy val scraperActionTable = new TableQuery(tag => new ScraperActionTable(tag))
+
+  /*
+actionPhase: ActionPhase = ActionPhase.CONTENT,
+action_order: Long = 1L,
+actionType: ActionType = ActionType.CSS_SELECTOR,
+actionInput: Option[String],
+actionTemplate: Option[String],
+actionReplaceWith: Option[String],
+actionOutputVariable: Option[String]
+
+
+   */
+
   //  class IndexPageTable(tag: Tag) extends Table[IndexPage](tag, "indexpage") {
   //    val id: Column[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
   //    val feedid: Column[Int] = column[Int]("sourceid")
