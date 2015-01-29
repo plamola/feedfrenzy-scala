@@ -1,6 +1,7 @@
 package nl.dekkr.feedfrenzy.model
 
 import nl.dekkr.feedfrenzy.db.{ Schema, Tables }
+import org.joda.time.DateTime
 
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.lifted.TableQuery
@@ -16,15 +17,35 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
 
     def findUpdatable = getRunnableScrapers
 
+    def findActions(scraperId: Int) = getScraperActions(scraperId)
+
     private def getRunnableScrapers: List[Scraper] = {
       implicit val session = Schema.getSession
       try {
+        val scrapers = TableQuery[Tables.ScraperTable]
         val feeds = TableQuery[Tables.FeedTable]
         Schema.createOrUpdate(session)
         addDummyContent()
-        feeds.list.map(feed =>
-          Scraper(id = feed.id, sourceUrl = feed.feedurl, singlePage = true)
-        )
+        val activeScrapers = for {
+          f <- feeds if f.nextupdate < DateTime.now().getMillis
+          s <- scrapers if s.id === f.scraperid
+        } yield s
+        activeScrapers.list
+      } catch {
+        case e: Exception =>
+          println(s"ERROR: ${e.getMessage} [${e.getCause}]")
+          List.empty
+      }
+    }
+
+    private def getScraperActions(scraperId: Int): List[ScraperAction] = {
+      implicit val session = Schema.getSession
+      try {
+        val scraperActions = TableQuery[Tables.ScraperActionTable]
+        val actions = for {
+          a <- scraperActions.sortBy(_.actionOrder.asc) if a.scraperid === scraperId
+        } yield a
+        actions.list
       } catch {
         case e: Exception =>
           println(s"ERROR: ${e.getMessage} [${e.getCause}]")

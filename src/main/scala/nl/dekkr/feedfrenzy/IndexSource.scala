@@ -13,7 +13,13 @@ object IndexSource extends Scrapers with ScraperRepositoryDbComponent {
   //lazy val scraperRepository = new ScraperRepositoryDbComponent {}
 
   def main(args: Array[String]): Unit = {
-    CollectArticlesStream.runWithSource(Source(this.getUpdatable))
+    CollectArticlesStream.runWithSource(
+      Source(
+        for {
+          scraper <- this.getUpdatable
+        } yield ScraperDefinition(scraper, this.getActions(scraper.id.get))
+      )
+    )
   }
 
 }

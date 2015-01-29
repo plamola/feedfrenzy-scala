@@ -19,20 +19,20 @@ class GetPageContent extends PushStage[ContentBlock, ContentBlock] {
       Try(pageContent(elem.uri.get).charset("UTF-8")) match {
         case Success(content) =>
           // TODO replace hard-coded charset with value from scraper
-          ctx.push(ContentBlock(scraper = elem.scraper, content = Some(content.asString)))
+          ctx.push(ContentBlock(scraperDefinition = elem.scraperDefinition, content = Some(content.asString)))
         case Failure(e) =>
           // TODO log error
-          println(s"Error getting content for url: [${elem.uri.get}] [${elem.scraper.id.get}] [${e.getMessage}]")
+          println(s"Error getting content for url: [${elem.uri.get}] [${elem.scraperDefinition.scraper.id.get}] [${e.getMessage}]")
           ctx.pull()
       }
     } catch {
       case timeout: SocketTimeoutException =>
         // TODO log error
-        println(s"Time out: [${elem.uri.get}] [${elem.scraper.id.get}]")
+        println(s"Time out: [${elem.uri.get}] [${elem.scraperDefinition.scraper.id.get}]")
         ctx.pull()
       case e: Exception =>
         // TODO log error
-        println(s"Exception: [${elem.uri.get}] [${elem.scraper.id.get}] [${e.getMessage}] [${e.getCause}] ")
+        println(s"Exception: [${elem.uri.get}] [${elem.scraperDefinition.scraper.id.get}] [${e.getMessage}] [${e.getCause}] ")
         ctx.pull()
     }
 

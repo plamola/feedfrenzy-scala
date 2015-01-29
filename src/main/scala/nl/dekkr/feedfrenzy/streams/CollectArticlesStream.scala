@@ -11,7 +11,7 @@ import nl.dekkr.feedfrenzy.streams.flows.{ GetPageContent, SplitIndexIntoBlocks 
  */
 object CollectArticlesStream {
 
-  def runWithSource(src: Source[Scraper]): Unit = {
+  def runWithSource(src: Source[ScraperDefinition]): Unit = {
     implicit val system = ActorSystem("feedfrenzy-collector")
     implicit val materializer = FlowMaterializer()
 
@@ -22,8 +22,8 @@ object CollectArticlesStream {
 
     // val core = new ScraperCore(new ScraperRepositoryDummyComponent)
 
-    val scraperToContentBlock: Flow[Scraper, ContentBlock] = Flow[Scraper]
-      .map(scraper => new ContentBlock(scraper = scraper, uri = Some(scraper.sourceUrl)))
+    val scraperToContentBlock: Flow[ScraperDefinition, ContentBlock] = Flow[ScraperDefinition]
+      .map(scraperDef => new ContentBlock(scraperDefinition = scraperDef, uri = Some(scraperDef.scraper.sourceUrl)))
 
     val fetchPage: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
       .transform(() => new GetPageContent())
@@ -33,12 +33,12 @@ object CollectArticlesStream {
 
     val printSink = ForeachSink[ContentBlock] {
       value =>
-        println(s"PrintSink: [${value.scraper.id.get}] [${value.content.get.length}]")
+        println(s"PrintSink: [${value.scraperDefinition.scraper.id.get}] [${value.content.get.length}]")
     }
 
     val resultSink = ForeachSink[ContentBlock] {
       el =>
-        println(s"ResultSink: [${el.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
+        println(s"ResultSink: [${el.scraperDefinition.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
     }
 
     val materialized = FlowGraph {

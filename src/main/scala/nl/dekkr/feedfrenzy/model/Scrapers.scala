@@ -7,5 +7,6 @@ trait Scrapers {
   this: ScraperRepositoryComponent =>
 
   def getUpdatable = scraperRepository.findUpdatable
+  def getActions(id: Int) = scraperRepository.findActions(id)
 
 }

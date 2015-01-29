@@ -8,8 +8,8 @@ trait ScraperRepositoryComponent {
   def scraperRepository: ScraperRepository
 
   trait ScraperRepository {
-    //def findAll: List[Scraper]
     def findUpdatable: List[Scraper]
+    def findActions(scraperId: Int): List[ScraperAction]
   }
 
 }

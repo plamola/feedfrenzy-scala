@@ -40,7 +40,7 @@ class SplitIndexIntoBlocks() extends PushPullStage[ContentBlock, ContentBlock] {
   def getNextBlock: ContentBlock = {
     val elem = blocks.head
     blocks = blocks.tail
-    new ContentBlock(scraper = content.scraper, content = Option(elem))
+    new ContentBlock(scraperDefinition = content.scraperDefinition, content = Option(elem))
   }
 
 }

@@ -11,7 +11,7 @@ class IndexPageSubscriber extends ActorSubscriber with ActorLogging {
 
   protected def requestStrategy = WatermarkRequestStrategy(10)
 
-  def processElement(el: ContentBlock) = log.info(s"IndexPageSubscriber: [${el.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
+  def processElement(el: ContentBlock) = log.info(s"IndexPageSubscriber: [${el.scraperDefinition.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
 
   def handleError(ex: Throwable) = log.error(ex.getMessage)
 
