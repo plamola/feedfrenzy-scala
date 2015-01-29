@@ -26,15 +26,19 @@ trait FeedFrenzyTestBase extends Specification
 
   private def dropDatabaseTables(): Unit = {
     val existingTables = MTable.getTables.list
-    if (existingTables.exists(_.name.name.equalsIgnoreCase("scraper"))) {
-      Tables.scraperTable.ddl.drop
-    }
     if (existingTables.exists(_.name.name.equalsIgnoreCase("article"))) {
       Tables.articleTable.ddl.drop
     }
     if (existingTables.exists(_.name.name.equalsIgnoreCase("feed"))) {
       Tables.feedTable.ddl.drop
     }
+    if (existingTables.exists(_.name.name.equalsIgnoreCase("scraperaction"))) {
+      Tables.scraperActionTable.ddl.drop
+    }
+    if (existingTables.exists(_.name.name.equalsIgnoreCase("scraper"))) {
+      Tables.scraperTable.ddl.drop
+    }
+
   }
 
 }
