@@ -34,6 +34,7 @@ object CollectArticlesStream {
     val printSink = ForeachSink[ContentBlock] {
       value =>
         println(s"PrintSink: [${value.scraperDefinition.scraper.id.get}] [${value.content.get.length}]")
+        for { actions <- value.scraperDefinition.actions } println(s"[${actions.action_id}] - ${actions.action_order} ${actions.actionType} ${actions.actionTemplate}")
     }
 
     val resultSink = ForeachSink[ContentBlock] {
@@ -50,6 +51,7 @@ object CollectArticlesStream {
         // @formatter:off
         src ~> scraperToContentBlock ~> fetchPage ~> broadcast ~> resultSink
         broadcast ~> splitIntoBlocks ~> Sink.ignore
+        broadcast ~> printSink
       // @formatter:on
 
     }.run
