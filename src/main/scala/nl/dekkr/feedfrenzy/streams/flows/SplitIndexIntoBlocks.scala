@@ -1,8 +1,8 @@
 package nl.dekkr.feedfrenzy.streams.flows
 
-import akka.stream.stage.{Context, Directive, PushPullStage, TerminationDirective}
+import akka.stream.stage.{ Context, Directive, PushPullStage, TerminationDirective }
 import nl.dekkr.feedfrenzy.ScraperUtils
-import nl.dekkr.feedfrenzy.model.{ActionPhase, ContentBlock}
+import nl.dekkr.feedfrenzy.model.{ ActionPhase, ContentBlock }
 
 /**
  * Author: matthijs
