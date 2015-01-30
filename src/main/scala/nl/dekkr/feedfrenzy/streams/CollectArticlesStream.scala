@@ -3,8 +3,9 @@ package nl.dekkr.feedfrenzy.streams
 import akka.actor.ActorSystem
 import akka.stream.FlowMaterializer
 import akka.stream.scaladsl._
+import nl.dekkr.feedfrenzy.ScraperUtils
 import nl.dekkr.feedfrenzy.model._
-import nl.dekkr.feedfrenzy.streams.flows.{ GetPageContent, SplitIndexIntoBlocks }
+import nl.dekkr.feedfrenzy.streams.flows.{GetPageContent, SplitIndexIntoBlocks}
 
 /**
  * Created by Matthijs Dekker on 26/01/15.
@@ -23,7 +24,7 @@ object CollectArticlesStream {
     // val core = new ScraperCore(new ScraperRepositoryDummyComponent)
 
     val scraperToContentBlock: Flow[ScraperDefinition, ContentBlock] = Flow[ScraperDefinition]
-      .map(scraperDef => new ContentBlock(scraperDefinition = scraperDef, uri = Some(scraperDef.scraper.sourceUrl)))
+      .map(scraperDef => new ContentBlock(scraperDefinition = scraperDef, sourceUrl = Some(scraperDef.scraper.sourceUrl)))
 
     val fetchPage: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
       .transform(() => new GetPageContent())
@@ -31,20 +32,42 @@ object CollectArticlesStream {
     val splitIntoBlocks: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
       .transform(() => new SplitIndexIntoBlocks())
 
+    val generateUID: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
+      .map(block => ScraperUtils.scrape(block, ActionPhase.UIDS)).filter(p => p.result != None)
+
+    val filterOldArticles: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
+      .map(block => block).filter(p => p.result != None && p.result.get.articleUid.getOrElse("") == "http://www.rtvutrecht.nl/nieuws/1285092")
+
+    val prepareNextPageFetch: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
+      .map(
+        block =>
+          if (block.scraperDefinition.scraper.singlePage) block
+          else ContentBlock(scraperDefinition = block.scraperDefinition, sourceUrl = block.result.get.articleUrl, result = block.result)
+      )
+
+    val generateArticles: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
+      .map(block => ScraperUtils.scrape(block, ActionPhase.CONTENT)).filter(p => p.result != None)
+
     val printSink = ForeachSink[ContentBlock] {
       value =>
-        println(s"PrintSink: [${value.scraperDefinition.scraper.id.get}] [${value.content.get.length}]")
-        for { actions <- value.scraperDefinition.actions } println(s"[${actions.action_id}] - ${actions.action_order} ${actions.actionType} ${actions.actionTemplate}")
+        println(s"PrintSink: [${value.scraperDefinition.scraper.id.get}] [${value.pageContent.get.length}]")
+        for {actions <- value.scraperDefinition.actions} println(s"[${actions.action_id.get} \t${actions.actionPhase}]  \t${actions.action_order} \t: ${actions.actionType} \t${actions.actionTemplate}\t${actions.actionOutputVariable}")
     }
 
     val resultSink = ForeachSink[ContentBlock] {
       el =>
-        println(s"ResultSink: [${el.scraperDefinition.scraper.id.getOrElse(0)}] -  Content length: ${el.content.getOrElse("").length}")
+        println(s"ResultSink: [${el.scraperDefinition.scraper.id.getOrElse(0)}] -  Content length: ${el.pageContent.getOrElse("").length}")
     }
 
     val blockSink = ForeachSink[ContentBlock] {
-      value =>
-        println(s"BlockSink: [${value.scraperDefinition.scraper.id.get}] [${value.content.get}]")
+      value => {
+        println(s" ==== BlockSink: [${value.scraperDefinition.scraper.id.get}] \t [${value.result.get.articleUid.getOrElse("---")}] \t [${value.result.get.articleUrl.getOrElse("---")}] ====")
+        if (value.result != None) {
+          println(s"BlockSink: [${value.scraperDefinition.scraper.id.get}] \t title \t [${value.result.get.articleTitle.getOrElse("---")}]")
+          println(s"BlockSink: [${value.scraperDefinition.scraper.id.get}] \t author \t[${value.result.get.articleAuthor.getOrElse("---")}]")
+          println(s"BlockSink: [${value.scraperDefinition.scraper.id.get}] \t length \t[${value.result.get.articleContent.getOrElse("").length}]")
+        }
+      }
     }
 
     val materialized = FlowGraph {
@@ -54,9 +77,11 @@ object CollectArticlesStream {
         //        Source(publisher) ~> fetchPage ~> broadcast ~> Sink(subscriber)
 
         // @formatter:off
-        src ~> scraperToContentBlock ~> fetchPage ~> broadcast ~> resultSink
-        broadcast ~> splitIntoBlocks ~> blockSink //Sink.ignore
-        broadcast ~> printSink
+        src ~> scraperToContentBlock ~> fetchPage ~> broadcast ~> printSink
+        broadcast ~> splitIntoBlocks ~> generateUID ~>
+          filterOldArticles ~>
+          prepareNextPageFetch ~> fetchPage ~> generateArticles ~> blockSink //Sink.ignore
+      //broadcast ~> resultSink
       // @formatter:on
 
     }.run

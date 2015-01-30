@@ -2,7 +2,7 @@ package nl.dekkr.feedfrenzy.streams.flows
 
 import akka.stream.stage.{ Context, Directive, PushPullStage, TerminationDirective }
 import nl.dekkr.feedfrenzy.ScraperUtils
-import nl.dekkr.feedfrenzy.model.{ ActionPhase, ContentBlock }
+import nl.dekkr.feedfrenzy.model.{ ScrapeResult, ActionPhase, ContentBlock }
 
 /**
  * Author: matthijs
@@ -16,7 +16,7 @@ class SplitIndexIntoBlocks() extends PushPullStage[ContentBlock, ContentBlock] {
     content = elem
     // TODO Split should take all actions into account, not just the first one
     val splitOn = elem.scraperDefinition.actions.filter(_.actionPhase == ActionPhase.INDEX).head.actionTemplate
-    blocks = ScraperUtils.getIDs(elem.content.get, splitOn.get)
+    blocks = ScraperUtils.getIDs(elem.pageContent.get, splitOn.get)
     ctx.push(getNextBlock)
   }
 
@@ -43,7 +43,7 @@ class SplitIndexIntoBlocks() extends PushPullStage[ContentBlock, ContentBlock] {
   def getNextBlock: ContentBlock = {
     val elem = blocks.head
     blocks = blocks.tail
-    new ContentBlock(scraperDefinition = content.scraperDefinition, content = Option(elem))
+    new ContentBlock(scraperDefinition = content.scraperDefinition, pageContent = content.pageContent, result = Option(ScrapeResult(block = Some(elem))))
   }
 
 }

@@ -75,10 +75,10 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
 
       if (scraperActions.list.size < 1) {
         scraperActions ++= Seq(
-          ScraperAction(None, scraperId, ActionPhase.INDEX, 1, ActionType.CSS_SELECTOR, None, Some("div.actueel div.actueel-text p a"), None),
+          ScraperAction(None, scraperId, ActionPhase.INDEX, 1, ActionType.CSS_SELECTOR_PARENT, Some("contentBody"), Some("div.actueel div.actueel-text p a"), Some("contentBody")),
 
           ScraperAction(None, scraperId, ActionPhase.UIDS, 1, ActionType.ATTRIBUTE, Some("block"), Some("href"), Some("uri")),
-          ScraperAction(None, scraperId, ActionPhase.UIDS, 2, ActionType.REGEX, Some("uri"), Some("(?!/nieuws/)(\\\\d+)"), Some("uid")),
+          ScraperAction(None, scraperId, ActionPhase.UIDS, 2, ActionType.REGEX, Some("uri"), Some("(?!/nieuws/)(\\d+)"), Some("uid")),
           ScraperAction(None, scraperId, ActionPhase.UIDS, 3, ActionType.TEMPLATE, None, Some("http://www.rtvutrecht.nl/nieuws/{uid}"), Some("feeditem_url")),
           ScraperAction(None, scraperId, ActionPhase.UIDS, 4, ActionType.TEMPLATE, None, Some("{feeditem_url}"), Some("feeditem_uid")),
 

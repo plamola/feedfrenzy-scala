@@ -5,6 +5,6 @@ package nl.dekkr.feedfrenzy.model
  */
 case class ContentBlock(
   scraperDefinition: ScraperDefinition,
-  content: Option[String] = None,
-  uid: Option[String] = None,
-  uri: Option[String] = None)
+  sourceUrl: Option[String] = None,
+  pageContent: Option[String] = None,
+  result: Option[ScrapeResult] = None)
