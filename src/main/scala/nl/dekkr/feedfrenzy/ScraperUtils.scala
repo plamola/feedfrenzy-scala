@@ -45,7 +45,8 @@ object ScraperUtils {
 
         val vars = ScraperUtils.performScraperActions(block.scraperDefinition.actions, actionPhase, initialVariableMap)
         for (variable <- vars) {
-          if (variable._1 != "block" && variable._1 != "contentBody" && variable._1 != "content" && variable._1 != "feeditem_content") println(s"${variable._1}  \t---\t  ${variable._2}")
+          if (variable._1 != "block" && variable._1 != "contentBody" && variable._1 != "content" && variable._1 != "feeditem_content")
+            println(s"${variable._1}  \t---\t  ${variable._2}")
         }
         setContentBlockResult(block,
           Some(
@@ -182,13 +183,12 @@ object ScraperUtils {
       val p: Pattern = Pattern.compile(template)
       val m: Matcher = p.matcher(input)
       if (m.find) {
-        println(s"REGEX: [$input] [$template] [${m.group(1)}]")
+        //println(s"REGEX: [$input] [$template] [${m.group(1)}]")
         m.group(1)
       } else {
-        println(s"REGEX: [$input] [$template] []")
+        //println(s"REGEX: [$input] [$template] []")
         ""
       }
-
     } catch {
       case e: Exception => {
         // TODO log exception
@@ -211,6 +211,7 @@ object ScraperUtils {
   }
 
   private def replaceVarsInTemplate(template: String, vars: Map[String, String]): String = {
+    // TODO make recursive
     var output = template
     for (item <- vars) {
       //println(s"$output ::: ${item._1} :::  ${item._2}")
