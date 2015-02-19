@@ -85,7 +85,7 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
           ScraperAction(None, scraperId, ActionPhase.CONTENT, 1, ActionType.CSS_SELECTOR, Some("contentBody"), Some("div#Midden>p"), Some("content")),
           ScraperAction(None, scraperId, ActionPhase.CONTENT, 2, ActionType.CSS_SELECTOR, Some("contentBody"), Some("div#Content h1.border-top"), Some("feeditem_title")),
           ScraperAction(None, scraperId, ActionPhase.CONTENT, 3, ActionType.CSS_SELECTOR, Some("contentBody"), Some("div#Content p.verslaggever"), Some("verslaggeverregel")),
-          ScraperAction(None, scraperId, ActionPhase.CONTENT, 4, ActionType.REGEX, Some("verslaggeverregel"), Some("(.*)(?=\\&middot;)"), Some("feeditem_author")),
+          ScraperAction(None, scraperId, ActionPhase.CONTENT, 4, ActionType.REGEX, Some("verslaggeverregel"), Some("(.*)(?=\\s.\\sgeplaatst)"), Some("feeditem_author")),
           ScraperAction(None, scraperId, ActionPhase.CONTENT, 5, ActionType.REGEX, Some("verslaggeverregel"), Some("(\\d{1,2}\\s\\w+\\s\\d{4})"), Some("datumstring")),
           ScraperAction(None, scraperId, ActionPhase.CONTENT, 6, ActionType.REGEX, Some("verslaggeverregel"), Some("(\\d{1,2}\\:\\d{2})"), Some("tijdstring")),
           ScraperAction(None, scraperId, ActionPhase.CONTENT, 7, ActionType.CSS_SELECTOR, Some("contentBody"), Some("div#Midden div#Carousel div.carousel-inner div.active"), Some("image")),
