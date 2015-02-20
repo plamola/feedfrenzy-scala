@@ -38,14 +38,21 @@ object Schema {
       } else {
         // Update existing table structure
       }
+      if (!existingTables.exists(_.name.name.equalsIgnoreCase("page_cache"))) {
+        Tables.pageCacheTable.ddl.create
+      } else {
+        // Update existing table structure
+      }
 
     }
   }
 
   def createAll(implicit session: Session): Unit = {
     Tables.scraperTable.ddl.create
+    Tables.scraperActionTable.ddl.create
     Tables.feedTable.ddl.create
     Tables.articleTable.ddl.create
+    Tables.pageCacheTable.ddl.create
   }
 
   private def getConfiguredSession(conf: Config) = {

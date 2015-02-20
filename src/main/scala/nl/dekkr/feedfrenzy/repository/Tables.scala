@@ -98,4 +98,15 @@ trait Tables {
   }
   lazy val scraperActionTable = new TableQuery(tag => new ScraperActionTable(tag))
 
+  class PageCacheTable(tag: Tag) extends Table[PageCache](tag, "page_cache") {
+    val id: Column[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    val url: Column[String] = column[String]("url", O.Length(1024, varying = true))
+    val content: Column[Option[String]] = column[Option[String]]("content", O.Length(10485760, varying = true), O.Default(None))
+    val createdAt: Column[DateTime] = column[DateTime]("created_at", O.Default(DateTime.now()))
+
+    def * : ProvenShape[PageCache] =
+      (id.?, url, content, createdAt) <> (PageCache.tupled, PageCache.unapply)
+  }
+  lazy val pageCacheTable = new TableQuery(tag => new PageCacheTable(tag))
+
 }
