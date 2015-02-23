@@ -36,7 +36,7 @@ object CollectArticlesStream {
       .map(block => ScraperUtils.scrape(block, ActionPhase.UIDS)).filter(p => p.result != None)
 
     val filterOldArticles: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
-      .map(block => block).filter(p => p.result != None && p.result.get.articleUid.getOrElse("") == "http://www.rtvutrecht.nl/nieuws/1285092")
+      .map(block => block).filter(p => p.result != None && p.result.get.articleUid.getOrElse("") == "http://www.rtvutrecht.nl/nieuws/1292699")
 
     val prepareNextPageFetch: Flow[ContentBlock, ContentBlock] = Flow[ContentBlock]
       .map(
@@ -74,15 +74,10 @@ object CollectArticlesStream {
       implicit b =>
         import akka.stream.scaladsl.FlowGraphImplicits._
         val broadcast = Broadcast[ContentBlock]
-        //        Source(publisher) ~> fetchPage ~> broadcast ~> Sink(subscriber)
-
-        // @formatter:off
-        src ~> scraperToContentBlock ~> fetchPage ~> broadcast ~> printSink
-        broadcast ~> splitIntoBlocks ~> generateUID ~>
-          filterOldArticles ~>
-          prepareNextPageFetch ~> fetchPage ~> generateArticles ~> blockSink //Sink.ignore
-      //broadcast ~> resultSink
-      // @formatter:on
+        src ~> scraperToContentBlock ~> fetchPage ~>
+               broadcast ~> printSink
+               broadcast ~> splitIntoBlocks ~> generateUID ~> filterOldArticles ~>
+                 prepareNextPageFetch ~> fetchPage ~> generateArticles ~> blockSink
 
     }.run
 
