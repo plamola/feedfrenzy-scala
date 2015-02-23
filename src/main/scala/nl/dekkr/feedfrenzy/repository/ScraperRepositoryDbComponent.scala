@@ -113,9 +113,42 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
 
       if (feeds.list.size < 6)
         feeds += Feed(feedurl = "https://news.ycombinator.com/")
+    }
 
+
+    def findPage(uri: String): Option[PageCache] = {
+      implicit val session = Schema.getSession
+      try {
+        val cachedPages = TableQuery[Tables.PageCacheTable]
+        cachedPages
+          .filter(cp => cp.url === uri)
+          // TODO Check if content column has value
+          .sortBy(_.createdAt.desc)
+          .firstOption
+      } catch {
+        case e: Exception =>
+          println(s"ERROR: ${e.getMessage} [${e.getCause}]")
+          None
+      }
+    }
+
+    def cachePage(uri: String, content: Option[String]) {
+      implicit val session = Schema.getSession
+      try {
+        val cachedPages = TableQuery[Tables.PageCacheTable]
+        cachedPages +=
+          PageCache(
+            uri = uri,
+            content = content,
+            createdAt = Some(DateTime.now())
+          )
+      } catch {
+        case e: Exception =>
+          println(s"ERROR: ${e.getMessage} [${e.getCause}]")
+      }
     }
 
   }
+
 
 }

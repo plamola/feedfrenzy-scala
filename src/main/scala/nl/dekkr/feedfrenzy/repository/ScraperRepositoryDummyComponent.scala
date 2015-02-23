@@ -1,6 +1,7 @@
 package nl.dekkr.feedfrenzy.repository
 
-import nl.dekkr.feedfrenzy.model.{ ActionPhase, ActionType, Scraper, ScraperAction }
+import nl.dekkr.feedfrenzy.model._
+import org.joda.time.DateTime
 
 /**
  * Created by Matthijs Dekker on 21/01/15.
@@ -37,6 +38,23 @@ trait ScraperRepositoryDummyComponent extends ScraperRepositoryComponent {
       ScraperAction(None, Some(scraperId), ActionPhase.CONTENT, 9, ActionType.CSS_SELECTOR_PARENT, Some("contentBody"), Some("div#Midden>img"), Some("inlineImage")),
       ScraperAction(None, Some(scraperId), ActionPhase.CONTENT, 10, ActionType.TEMPLATE, None, Some("<p>{imageZonderCaption}{inlineImage}</p>{content}"), Some("feeditem_content"))
     )
+
+    def findPage(uri: String) : Option[PageCache] = {
+      Some(
+        PageCache(
+          uri = uri,
+          createdAt = Some(DateTime.now())
+        )
+      )
+    }
+
+    def cachePage(uri: String, content: Option[String]) {
+      PageCache(
+        uri = uri,
+        content = content,
+        createdAt = Some(DateTime.now())
+      )
+    }
 
   }
 
