@@ -8,7 +8,8 @@ import nl.dekkr.feedfrenzy.model._
 import nl.dekkr.feedfrenzy.streams.flows.{GetPageContent, SplitIndexIntoBlocks}
 
 /**
- * Created by Matthijs Dekker on 26/01/15.
+ * Author: Matthijs Dekker
+ * Created on: 26 Jan 2015.
  */
 object CollectArticlesStream {
 

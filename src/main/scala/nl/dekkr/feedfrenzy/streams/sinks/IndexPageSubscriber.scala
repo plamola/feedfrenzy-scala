@@ -5,7 +5,8 @@ import akka.stream.actor.{ ActorSubscriber, ActorSubscriberMessage, WatermarkReq
 import nl.dekkr.feedfrenzy.model.ContentBlock
 
 /**
- * Created by Matthijs Dekker on 14/01/15.
+ * Author: Matthijs Dekker
+ * Created on: 14 Jan 2015.
  */
 class IndexPageSubscriber extends ActorSubscriber with ActorLogging {
 

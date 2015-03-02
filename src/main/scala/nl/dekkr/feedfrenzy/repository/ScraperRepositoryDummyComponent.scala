@@ -4,7 +4,8 @@ import nl.dekkr.feedfrenzy.model._
 import org.joda.time.DateTime
 
 /**
- * Created by Matthijs Dekker on 21/01/15.
+ * Author: Matthijs Dekker
+ * Created on: 21 Jan 2015.
  */
 trait ScraperRepositoryDummyComponent extends ScraperRepositoryComponent {
 

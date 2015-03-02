@@ -2,7 +2,7 @@ import nl.dekkr.feedfrenzy.repository.Schema
 import nl.dekkr.feedfrenzy.model.Syndication
 
 /**
- * Created by Matthijs Dekker on 26/01/15.
+ * Test suite for the collect article stream
  */
 class CollectArticleStreamSuite extends FeedFrenzyTestBase {
 

@@ -7,7 +7,8 @@ import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.lifted.TableQuery
 
 /**
- * Created by Matthijs Dekker on 21/01/15.
+ * Author: Matthijs Dekker
+ * Created on: 21 Jan 2015.
  */
 trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
 

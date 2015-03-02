@@ -3,7 +3,8 @@ package nl.dekkr.feedfrenzy.repository
 import nl.dekkr.feedfrenzy.model.{PageCache, Scraper, ScraperAction}
 
 /**
- * Created by Matthijs Dekker on 21/01/15.
+ * Author: Matthijs Dekker
+ * Created on: 26 Jan 2015
  */
 trait ScraperRepositoryComponent {
 

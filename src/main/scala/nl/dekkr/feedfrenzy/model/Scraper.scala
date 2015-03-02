@@ -1,6 +1,7 @@
 package nl.dekkr.feedfrenzy.model
 
 /**
- * Created by Matthijs Dekker on 26/01/15.
+ * Author: Matthijs Dekker
+ * Created on: 26 Jan 2015.
  */
 case class Scraper(id: Option[Int] = None, sourceUrl: String, singlePage: Boolean = false)

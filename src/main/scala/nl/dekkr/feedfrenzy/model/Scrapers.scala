@@ -3,7 +3,8 @@ package nl.dekkr.feedfrenzy.model
 import nl.dekkr.feedfrenzy.repository.ScraperRepositoryComponent
 
 /**
- * Created by Matthijs Dekker on 26/01/15.
+ * Author: Matthijs Dekker
+ * Created on: 26 Jan 2015.
  */
 trait Scrapers {
   this: ScraperRepositoryComponent =>

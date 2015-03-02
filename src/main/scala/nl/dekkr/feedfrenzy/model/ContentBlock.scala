@@ -1,7 +1,7 @@
 package nl.dekkr.feedfrenzy.model
 
 /**
- * Created by Matthijs Dekker on 26/01/15.
+ * Entity to contain scraped content, including the method of appropriating the content
  */
 case class ContentBlock(
   scraperDefinition: ScraperDefinition,
