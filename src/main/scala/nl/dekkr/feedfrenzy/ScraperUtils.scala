@@ -92,7 +92,7 @@ object ScraperUtils {
     for (action <- actions.filter(a => a.actionPhase == phase)) {
       if (phase == ActionPhase.CONTENT) println(s"Current action: ${action.action_order} \t${action.actionType} \t ${action.actionTemplate.getOrElse("")}  \t ${action.actionOutputVariable.getOrElse("")}")
 
-      val input: String = vars.get(action.actionInput.getOrElse("")).getOrElse("<-- No input found-->")
+      val input: String = vars.getOrElse(action.actionInput.getOrElse(""), "<-- No input found-->")
       val template: String = action.actionTemplate.getOrElse("")
       var output: String = "-- Error? --"
 
