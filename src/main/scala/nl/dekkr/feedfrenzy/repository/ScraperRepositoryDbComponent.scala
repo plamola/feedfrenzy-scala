@@ -141,7 +141,7 @@ trait ScraperRepositoryDbComponent extends ScraperRepositoryComponent {
           PageCache(
             uri = uri,
             content = content,
-            createdAt = Some(DateTime.now())
+            createdAt = DateTime.now()
           )
       } catch {
         case e: Exception =>

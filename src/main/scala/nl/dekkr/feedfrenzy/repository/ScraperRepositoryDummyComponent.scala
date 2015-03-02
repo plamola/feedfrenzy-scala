@@ -44,7 +44,7 @@ trait ScraperRepositoryDummyComponent extends ScraperRepositoryComponent {
       Some(
         PageCache(
           uri = uri,
-          createdAt = Some(DateTime.now())
+          createdAt = DateTime.now()
         )
       )
     }
@@ -53,7 +53,7 @@ trait ScraperRepositoryDummyComponent extends ScraperRepositoryComponent {
       PageCache(
         uri = uri,
         content = content,
-        createdAt = Some(DateTime.now())
+        createdAt = DateTime.now()
       )
     }
 

@@ -86,8 +86,8 @@ trait Tables {
     val actionType: Column[ActionType] = column[ActionType]("action_type")
     val actionInput: Column[Option[String]] = column[Option[String]]("action_input_type", O.Length(1024, varying = true), O.Default(None))
     val actionTemplate: Column[Option[String]] = column[Option[String]]("action_template", O.Length(1024, varying = true), O.Default(None))
-    val actionReplaceWith: Column[Option[String]] = column[Option[String]]("action_replace_with", O.Length(1024, varying = true), O.Default(None))
     val actionOutputVariable: Column[Option[String]] = column[Option[String]]("action_output_variable", O.Length(1024, varying = true), O.Default(None))
+    val actionReplaceWith: Column[Option[String]] = column[Option[String]]("action_replace_with", O.Length(1024, varying = true), O.Default(None))
 
     def * : ProvenShape[ScraperAction] =
       (id.?, scraperid.?, actionPhase, actionOrder, actionType, actionInput, actionTemplate, actionOutputVariable, actionReplaceWith) <> (ScraperAction.tupled, ScraperAction.unapply)
