@@ -190,10 +190,9 @@ object ScraperUtils {
         ""
       }
     } catch {
-      case e: Exception => {
+      case e: Exception =>
         // TODO log exception
         ""
-      }
     }
 
   }
@@ -202,12 +201,10 @@ object ScraperUtils {
     try {
       Jsoup.parse("<html></html").html(input).child(0).attr(attrib)
     } catch {
-      case e: Exception => {
+      case e: Exception =>
         // TODO log an error: Attibute not found or empty input
         ""
-      }
     }
-
   }
 
   private def replaceVarsInTemplate(template: String, vars: Map[String, String]): String = {

@@ -20,11 +20,10 @@ class IndexPageSubscriber extends ActorSubscriber with ActorLogging {
   }
 
   def receive = {
-    case ActorSubscriberMessage.OnNext(element) => {
+    case ActorSubscriberMessage.OnNext(element) =>
       //TODO remove this delay
       Thread.sleep(2000)
       processElement(element.asInstanceOf[ContentBlock])
-    }
     case ActorSubscriberMessage.OnError(ex) =>
       handleError(ex)
     case ActorSubscriberMessage.OnComplete =>
